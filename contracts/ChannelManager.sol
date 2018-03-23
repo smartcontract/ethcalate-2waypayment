@@ -58,7 +58,10 @@ contract ChannelManager {
 
                 // Close out the B->A side of the channel
                 require(value <= channel.depositB);
-                channel.agentA.transfer(channel.depositB - value);
+                // Transfer value to closer
+                channel.agentA.transfer(value);
+                // Return remaining to other party
+                channel.agentB.transfer(channel.depositB - value);
 
                 // Close this side of the channel
                 channel.openB = false;
@@ -79,7 +82,10 @@ contract ChannelManager {
 
                 // Close out the A->B side of the channel
                 require(value <= channel.depositA);
-                channel.agentB.transfer(channel.depositA - value);
+                // Transfer value to closer
+                channel.agentB.transfer(value);
+                // Return remaining to other party
+                channel.agentA.transfer(channel.depositA - value);
 
                 // Close this side of the channel
                 channel.openA = false;
@@ -105,7 +111,7 @@ contract ChannelManager {
 
     function challenge(bytes32[4] h, uint8 v, uint256 value, uint256 nonce) public {
         // Make sure we're still in the challenge period
-        require(channel.closeTime + channel.challenge > now);
+        require(now <= channel.closeTime + channel.challenge);
 
         // Make sure the nonce is higher
         require(nonce >= channel.nonce);
@@ -126,5 +132,21 @@ contract ChannelManager {
             channel.valueAtoB = value;
             channel.closeTime = now;
         }
+    }
+
+    function finalize() public {
+        // Make sure we're past the challenge period
+        require(now > channel.closeTime + channel.challenge);
+
+        // Channel should only be closed by either agent
+        require(msg.sender == channel.agentA || msg.sender == channel.agentB);
+
+        // Transfer funds to agents
+        channel.agentA.transfer(channel.valueBtoA);
+        channel.agentB.transfer(channel.valueAtoB);
+
+        // TODO, does valueBtoA + valueAtoB always add up to depositA + depositB
+
+        delete channel;
     }
 }
