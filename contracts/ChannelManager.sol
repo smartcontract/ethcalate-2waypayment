@@ -5,20 +5,26 @@ contract ChannelManager {
         address agentA;
         address agentB;
         address token;
-        uint depositA;       // Deposit of agent A
-        uint depositB;       // Deposit of agent B
-        bool openA;          // True if A->B is open
-        bool openB;          // True if B->A is open
+        uint depositA; // Deposit of agent A
+        uint depositB; // Deposit of agent B
+        bool openA; // True if A->B is open
+        bool openB; // True if B->A is open
+        uint challenge;
+        uint nonce;
+        uint closeTime;
+        uint valueBtoA; // for challenge
+        uint valueAtoB; // for challenge
     }
 
     Channel public channel;
 
-    function openChannel(address to) payable public {
+    function openChannel(address to, uint challenge) payable public {
         channel.agentA = msg.sender;
         channel.agentB = to;
         channel.depositA = msg.value;
         channel.openA = true;
         channel.openB = true;
+        channel.challenge = challenge;
     }
 
     function addDeposit() payable public {
@@ -31,7 +37,7 @@ contract ChannelManager {
         }
     }
 
-    function closeChannel(bytes32[4] h, uint8 v, uint256 value) public {
+    function closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce) public {
         // h[0]    Channel id
         // h[1]    Hash of (id, value)
         // h[2]    r of signature
@@ -47,35 +53,78 @@ contract ChannelManager {
         require(proof == h[1]);
 
         if (msg.sender == channel.agentA && signer == channel.agentB) {
-            require(value <= channel.depositB);
-            channel.agentA.transfer(channel.depositB);
+            if (channel.challenge == 0) {
+                // If there's no challenge period, close out the channel immediately.
+
+                // Close out the B->A side of the channel
+                require(value <= channel.depositB);
+                channel.agentA.transfer(channel.depositB - value);
+
+                // Close this side of the channel
+                channel.openB = false;
+                // Close the other side if no deposit was ever made
+                if (channel.depositA == 0) {
+                    channel.openA = false;
+                }
+            } else {
+                // Copy the data to the state and allow challenges
+
+                channel.nonce = nonce;
+                channel.valueBtoA = value;
+                channel.closeTime = now;
+            }
+        } else if (msg.sender == channel.agentB && signer == channel.agentA) {
+            if (channel.challenge == 0) {
+                // If there's no challenge period, close out the channel immediately.
+
+                // Close out the A->B side of the channel
+                require(value <= channel.depositA);
+                channel.agentB.transfer(channel.depositA - value);
+
+                // Close this side of the channel
+                channel.openA = false;
+                // Close the other side if no deposit was ever made
+                if (channel.depositB == 0) {
+                    channel.openB = false;
+                }
+            } else {
+                // Copy the data to the state and allow challenges
+
+                channel.nonce = nonce;
+                channel.valueAtoB = value;
+                channel.closeTime = now;
+            }
+        }
+
+        // If both sides of the channel are closed, delete the channel
+        if (channel.openA == false && channel.openB == false) {
+            // Close the channel
+            delete channel;
         }
     }
 
-    function closeChannel(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value1, uint value2) public {
-		address signer;
-		bytes32 proof;
+    function challenge(bytes32[4] h, uint8 v, uint256 value, uint256 nonce) public {
+        // Make sure we're still in the challenge period
+        require(channel.closeTime + channel.challenge > now);
 
-		// get signer from signature
-		signer = ecrecover(h, v, r, s);
+        // Make sure the nonce is higher
+        require(nonce >= channel.nonce);
 
-		// signature is invalid, throw
-		require(signer == channel.member1 || signer == channel.member2);
+        require(msg.sender == channel.agentA || msg.sender == channel.agentB);
 
-		proof = keccak256(this, value1, value2);
+        address signer = ecrecover(h[1], v, h[2], h[3]);
+        bytes32 proof = keccak256(h[0], value);
 
-		// signature is valid but doesn't match the data provided
-		require(proof == h);
+        require(proof == h[1]);
 
-		if (channel.signatures[proof] == 0)
-			channel.signatures[proof] = signer;
-		else if (channel.signatures[proof] != signer) {
-			// channel completed, both signatures provided
-            channel.member1.transfer(value1);
-            channel.member2.transfer(value1);
-			delete channel;
-		}
-
-	}
-
+        if (msg.sender == channel.agentA && signer == channel.agentB) {
+            channel.nonce = nonce;
+            channel.valueBtoA = value;
+            channel.closeTime = now;
+        } else if (msg.sender == channel.agentB && signer == channel.agentA) {
+            channel.nonce = nonce;
+            channel.valueAtoB = value;
+            channel.closeTime = now;
+        }
+    }
 }
