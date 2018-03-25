@@ -1,5 +1,6 @@
-var SimpleStorage = artifacts.require("./SimpleStorage.sol");
+/* globals artifacts */
+const ChannelManager = artifacts.require('./ChannelManager.sol')
 
-module.exports = function(deployer) {
-  deployer.deploy(SimpleStorage);
-};
+module.exports = function (deployer) {
+  deployer.deploy(ChannelManager)
+}
