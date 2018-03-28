@@ -1,13 +1,19 @@
 /* globals state */
 
-import React, { Component } from 'react'
+// import SimpleStorageContract from '../build/contracts/SimpleStorage.json'
 import ChannelManagerContract from '../build/contracts/ChannelManager.json'
+
+import React, { Component } from 'react'
+import DesktopComponent from './js/components/DesktopComponent'
+
 import getWeb3 from './utils/getWeb3'
 
-import './css/oswald.css'
-import './css/open-sans.css'
-import './css/pure-min.css'
-import './App.css'
+// import './css/oswald.css'
+// import './css/open-sans.css'
+// import './css/pure-min.css'
+// import './App.css'
+
+// import "semantic-ui-css/semantic.css"
 
 class App extends Component {
   state = {
@@ -41,47 +47,35 @@ class App extends Component {
     const channelManager = contract(ChannelManagerContract)
     channelManager.setProvider(this.state.web3.currentProvider)
 
+    // const simpleStorage = contract(SimpleStorageContract)
+    // simpleStorage.setProvider(this.state.web3.currentProvider)
+
     // Get accounts.
     this.state.web3.eth.getAccounts(async (error, accounts) => {
       if (error) {
         console.log(error)
         return
       }
+
       console.log(accounts)
       const channelManagerInstance = await channelManager.deployed()
       console.log(channelManagerInstance.address)
+
+      // let simpleStorageInstance = await simpleStorage.deployed()
+      // await simpleStorageInstance.set(5, {from: accounts[0]})
+      // let value = await simpleStorageInstance.get.call(accounts[0])
+      // this.setState({ storageValue: value.c[0] })
     })
   }
 
   render () {
     return (
       <div className='App'>
-        <nav className='navbar pure-menu pure-menu-horizontal'>
-          <a href='#' className='pure-menu-heading pure-menu-link'>
-            Truffle Box
-          </a>
-        </nav>
 
-        <main className='container'>
-          <div className='pure-g'>
-            <div className='pure-u-1-1'>
-              <h1>Good to Go!</h1>
-              <p>Your Truffle Box is installed and ready.</p>
-              <h2>Smart Contract Example</h2>
-              <p>
-                If your contracts compiled and migrated successfully, below will show a stored value of 5 (by default).
-              </p>
-              <p>
-                Try changing the value stored on
-                {' '}
-                <strong>line 59</strong>
-                {' '}
-                of App.js.
-              </p>
-              <p>The stored value is: {this.state.storageValue}</p>
-            </div>
-          </div>
-        </main>
+        <div>
+          <DesktopComponent />
+        </div>
+
       </div>
     )
   }
