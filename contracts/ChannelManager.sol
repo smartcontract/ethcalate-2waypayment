@@ -3,11 +3,26 @@ pragma solidity ^0.4.18;
 import "./ECTools.sol";
 
 contract ChannelManager is ECTools {
+    event ChannelOpen(bytes32 indexed channelId, address indexed agentA, address indexed agentB);
+    event ChannelJoin(
+        bytes32 indexed channelId,
+        address indexed agentA,
+        address indexed agentB,
+        uint256 depositA,
+        uint256 depositB
+    );
+    event ChannelChallenge(
+        bytes32 indexed channelId,
+        uint256 nonce
+    );
+    event ChannelClose(bytes32 indexed channelId);
+
     enum ChannelStatus {
         Open,
         Challenge,
         Closed
     }
+
     struct Channel {
         address agentA;
         address agentB;
@@ -39,6 +54,7 @@ contract ChannelManager is ECTools {
         channels[id] = channel;
         // Add it to the lookup table
         activeIds[msg.sender][to] = id;
+        ChannelOpen(id, channel.agentA, channel.agentB);
     }
 
     function joinChannel(bytes32 id) payable public {
@@ -49,6 +65,8 @@ contract ChannelManager is ECTools {
         require(channel.depositB == 0); // no re-up in this version
 
         channel.depositB = msg.value;
+
+        ChannelJoin(id, channel.agentA, channel.agentB, channel.depositA, channel.depositB);
     }
 
     function isValidStateUpdate(
@@ -120,6 +138,8 @@ contract ChannelManager is ECTools {
         // update channel status
         channel.status = ChannelStatus.Challenge;
         channel.closeTime = now + channel.challenge;
+        
+        ChannelChallenge(channelId, nonce);
     }
 
     function closeChannel(
@@ -142,6 +162,8 @@ contract ChannelManager is ECTools {
 
         delete channels[channelId];
         delete activeIds[channel.agentA][channel.agentB];
+
+        ChannelClose(channelId);
     }
 
     function getChannel(bytes32 id) public view returns(
