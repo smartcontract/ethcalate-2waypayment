@@ -14,29 +14,18 @@ class NewChannelModal extends Component{
     }
 
     async componentWillReceiveProps (nextProps) {
-        try {
-            const channelManagerInstance = await nextProps.channelManager.deployed()
-            console.log('contract address from instance ' + channelManagerInstance.address)
-            this.setState({ channelManagerAddress: channelManagerInstance.address })
-        } catch(e) {
-            console.log(e)
+        if (nextProps.channelManager) {
+            try {
+                const channelManagerInstance = await nextProps.channelManager.deployed()
+                this.setState({ channelManagerAddress: channelManagerInstance.address })
+            } catch(e) {
+                console.log(e)
+            }
         }
-
-        // Get accounts.
-        // nextProps.web3.eth.getAccounts(async (error, accounts) => {
-        //     if (error) {
-        //         console.log(error)
-        //         return
-        //     }
-
-        //     console.log(accounts)
-        //     const channelManagerInstance = await nextProps.channelManager.deployed()
-        //     console.log(channelManagerInstance.address)
-        //     this.setState({ channelManagerAddress: channelManagerInstance.address })
-        // })
     }
 
     createNewChannel = async () => {
+        console.log('createNewChannel')
         const {
             newCounterparty,
             challengePeriod,
@@ -57,7 +46,12 @@ class NewChannelModal extends Component{
         channelManagerInstance.openChannel(newCounterparty, challengePeriod, web3.toWei(stake, "ether"))
     }
 
-    handleChange = (e, { name, value }) => this.setState({ [name]: value })
+    handleChange = (e) => {
+        const target = e.target
+        const name = target.name
+        const value = target.value
+        this.setState({ [name] : value })
+    }
 
     handleSubmit = () => {
         const { newCounterparty, challengePeriod, stake } = this.state
@@ -82,7 +76,7 @@ class NewChannelModal extends Component{
         return (
             <Modal small inverted trigger={<Button>Open a New Channel</Button>} style={{position:'absolute', top:'50%', left:'20%'}}>
                 <Modal.Header>Enter Channel Information</Modal.Header>
-                <Modal.Content content>
+                <Modal.Content>
                     <Form>
                         <Form.Field>
                             <Label>Counterparty</Label>
@@ -96,7 +90,7 @@ class NewChannelModal extends Component{
                             <Label>Channel Stake</Label>
                             <Input type='number' placeholder='ETH' name='stake' onChange={this.handleChange}></Input>
                         </Form.Field>
-                        <Button verticalAlign='center' type='submit'>Open</Button>
+                        <Button verticalAlign='center' type='submit' onClick={this.handleSubmit}>Open</Button>
                     </Form>
                 </Modal.Content>
             </Modal>

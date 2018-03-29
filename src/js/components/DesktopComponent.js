@@ -43,27 +43,14 @@ class DesktopComponent extends React.Component {
     }
 
     async componentWillReceiveProps (nextProps) {
-        try {
-            const channelManagerInstance = await nextProps.channelManager.deployed()
-            console.log('contract address from instance ' + channelManagerInstance.address)
-            this.setState({ channelManagerAddress: channelManagerInstance.address })
-        } catch(e) {
-            console.log(e)
+        if (nextProps.channelManager) {
+            try {
+                const channelManagerInstance = await nextProps.channelManager.deployed()
+                this.setState({ channelManagerAddress: channelManagerInstance.address })
+            } catch(e) {
+                console.log(e)
+            }
         }
-
-        // Get accounts.
-        // nextProps.web3.eth.getAccounts(async (error, accounts) => {
-        //     if (error) {
-        //         console.log(error)
-        //         return
-        //     }
-
-        //     console.log(accounts)
-        //     const channelManagerInstance = await nextProps.channelManager.deployed()
-        //     console.log(channelManagerInstance.address)
-        //     this.setState({ channelManagerAddress: channelManagerInstance.address })
-        // })
-
     }
 
     closeChannel = async () => {
@@ -82,10 +69,7 @@ class DesktopComponent extends React.Component {
             channelManager
         } = this.props
 
-        console.log(this.props.channelManager)
-
         const { hideCloseChannelButton, channelManagerAddress } = this.state
-
 
         return (
             <div>
@@ -96,7 +80,6 @@ class DesktopComponent extends React.Component {
                     <Grid>
                         <Grid.Row columns='equal'>
                             <Grid.Column verticalAlign='left'>
-                                <Header>{accountAddress}</Header>
                             
                                 <NewChannelModal web3={web3} web3detected={web3detected} accountAddress={accountAddress} channelManager={channelManager} />
 
