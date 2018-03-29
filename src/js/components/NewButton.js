@@ -5,7 +5,7 @@ class NewButton extends Component {
     render () {
         return (
             <div>
-                <Button>New</Button>
+                <Button>Open New Channel</Button>
             </div>
         )
     }

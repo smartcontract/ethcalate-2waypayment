@@ -1,42 +1,37 @@
 import React, { Component } from 'react'
-import { Container, Header, Table } from 'semantic-ui-react'
+import { Table, Container } from 'semantic-ui-react'
 
 class TransactionTable extends Component {
-    render () {
+
+    transactionEntry(_nonce, _bal) {
+        let sender = 'senderAddress'
+        let recipient = 'recipientAddress'
+        return (
+            <tr>
+                <td>{_nonce}</td>
+                <td>{sender}</td>
+                <td>{recipient}</td>
+                <td>{_bal}</td>
+            </tr>
+        )
+    }
+
+    render() {
+        const txEntry = this.transactionEntry(1, '5 ETH')
+        
         return (
             <div>
-    `           <Container>
-                    <Header
-                        as='h3'
-                        textAlign='center'
-                        content='Your Channels'
-                        style={{
-                            fontSize: '1.5em',
-                            fontWeight: 'normal',
-                            marginBottom: 0,
-                            marginTop: '2em'
-                        }}
-                    />
+               <Container>
                     <Table className='ui cell striped table'>
                         <thead>
-                            <tr><th>Counterparty</th>
-                            <th>Balance</th>
-                            <th>Status</th>
-                            <th>Current Nonce</th>
+                            <tr><th>Transaction Number</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Value</th>
                         </tr></thead>
                         <tbody>
-                            <tr>
-                                <td>Channel Counterparty Address Here 1</td>
-                                <td>Channel Balance for participant  1</td>
-                                <td>Status of the channel 1</td>
-                                <td>Latest Channel Nonce Here 1</td>
-                            </tr>
-                            <tr>
-                                <td>Channel Counterparty Address Here 2</td>
-                                <td>Channel Balance for participant 2</td>
-                                <td>Status of the channel 2</td>
-                                <td>Latest Channel Nonce Here 2</td>
-                            </tr>
+                            { txEntry }
+                            { txEntry }
                         </tbody>
                     </Table>
                 </Container>`
