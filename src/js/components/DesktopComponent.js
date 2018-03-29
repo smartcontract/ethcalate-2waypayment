@@ -43,18 +43,27 @@ class DesktopComponent extends React.Component {
     }
 
     async componentWillReceiveProps (nextProps) {
-        // Get accounts.
-        nextProps.web3.eth.getAccounts(async (error, accounts) => {
-            if (error) {
-                console.log(error)
-                return
-            }
-
-            console.log(accounts)
+        try {
             const channelManagerInstance = await nextProps.channelManager.deployed()
-            console.log(channelManagerInstance.address)
+            console.log('contract address from instance ' + channelManagerInstance.address)
             this.setState({ channelManagerAddress: channelManagerInstance.address })
-        })
+        } catch(e) {
+            console.log(e)
+        }
+
+        // Get accounts.
+        // nextProps.web3.eth.getAccounts(async (error, accounts) => {
+        //     if (error) {
+        //         console.log(error)
+        //         return
+        //     }
+
+        //     console.log(accounts)
+        //     const channelManagerInstance = await nextProps.channelManager.deployed()
+        //     console.log(channelManagerInstance.address)
+        //     this.setState({ channelManagerAddress: channelManagerInstance.address })
+        // })
+
     }
 
     closeChannel = async () => {
@@ -64,16 +73,6 @@ class DesktopComponent extends React.Component {
         const channelManagerInstance = await this.props.channelManager.deployed()
         return channelManagerInstance
     }
-    
-    createNewChannel = async () => {
-        // const _counterparty // address of counterparty
-        // const _challenge // length of challenge period in seconds
-        
-        // get contract instance
-        const channelManagerInstance = await this.props.channelManager.deployed()
-        // channelManagerInstance.openChannel(_counterparty, _challenge)
-
-    }
 
     render() {
         const {
@@ -82,6 +81,8 @@ class DesktopComponent extends React.Component {
             accountAddress,
             channelManager
         } = this.props
+
+        console.log(this.props.channelManager)
 
         const { hideCloseChannelButton, channelManagerAddress } = this.state
 
@@ -95,7 +96,8 @@ class DesktopComponent extends React.Component {
                     <Grid>
                         <Grid.Row columns='equal'>
                             <Grid.Column verticalAlign='left'>
-                                
+                                <Header>{accountAddress}</Header>
+                            
                                 <NewChannelModal web3={web3} web3detected={web3detected} accountAddress={accountAddress} channelManager={channelManager} />
 
                             </Grid.Column>

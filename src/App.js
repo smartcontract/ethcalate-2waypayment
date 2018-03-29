@@ -29,11 +29,12 @@ class App extends Component {
       const results = await getWeb3
       this.setState({
         web3: results.web3,
-        web3detected: true,
+        web3detected: 'true',
         accountAddress: results.web3.eth.accounts[0]
       })
       
       this.instantiateContract()
+      
     } catch (e) {
       console.log('Error finding web3.')
     }
@@ -51,7 +52,7 @@ class App extends Component {
     channelManager.setProvider(this.state.web3.currentProvider)
     channelManager.defaults({ from: this.state.web3.eth.accounts[0]})
     this.setState({
-      channelManager
+      channelManager : channelManager
     })
 
     // const simpleStorage = contract(SimpleStorageContract)

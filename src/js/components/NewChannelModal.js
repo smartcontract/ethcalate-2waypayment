@@ -14,18 +14,26 @@ class NewChannelModal extends Component{
     }
 
     async componentWillReceiveProps (nextProps) {
-        // Get accounts.
-        nextProps.web3.eth.getAccounts(async (error, accounts) => {
-            if (error) {
-                console.log(error)
-                return
-            }
-
-            console.log(accounts)
+        try {
             const channelManagerInstance = await nextProps.channelManager.deployed()
-            console.log(channelManagerInstance.address)
+            console.log('contract address from instance ' + channelManagerInstance.address)
             this.setState({ channelManagerAddress: channelManagerInstance.address })
-        })
+        } catch(e) {
+            console.log(e)
+        }
+
+        // Get accounts.
+        // nextProps.web3.eth.getAccounts(async (error, accounts) => {
+        //     if (error) {
+        //         console.log(error)
+        //         return
+        //     }
+
+        //     console.log(accounts)
+        //     const channelManagerInstance = await nextProps.channelManager.deployed()
+        //     console.log(channelManagerInstance.address)
+        //     this.setState({ channelManagerAddress: channelManagerInstance.address })
+        // })
     }
 
     createNewChannel = async () => {
@@ -43,11 +51,10 @@ class NewChannelModal extends Component{
             channelManager
         } = this.props        
 
-        // get accounts
         const channelManagerInstance = await channelManager.deployed()
         // create new channel with params
-        channelManagerInstance.openChannel.call(newCounterparty, challengePeriod, stake, { from: accountAddress })
-
+        //const amount = web3.toWei(stake, "ether")
+        channelManagerInstance.openChannel(newCounterparty, challengePeriod, web3.toWei(stake, "ether"))
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
@@ -59,12 +66,12 @@ class NewChannelModal extends Component{
     }
 
     render() {
-        // const {
-        //     web3,
-        //     web3detected,
-        //     accountAddress,
-        //     channelManager
-        // } = this.props
+        const {
+            web3,
+            web3detected,
+            accountAddress,
+            channelManager
+        } = this.props
 
         // const {
         //     newCounterparty,
@@ -74,7 +81,7 @@ class NewChannelModal extends Component{
 
         return (
             <Modal small inverted trigger={<Button>Open a New Channel</Button>} style={{position:'absolute', top:'50%', left:'20%'}}>
-                <Modal.Header>Enter New Channel Details</Modal.Header>
+                <Modal.Header>Enter Channel Information</Modal.Header>
                 <Modal.Content content>
                     <Form>
                         <Form.Field>
