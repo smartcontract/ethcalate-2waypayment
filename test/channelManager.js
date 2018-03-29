@@ -79,7 +79,9 @@ contract('ChannelManager', async accounts => {
       balanceA.toString(),
       balanceB.toString(),
       sigA,
-      sigB
+      sigB,
+      true,
+      true
     )
 
     assert.equal(isValid, true)

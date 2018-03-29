@@ -80,7 +80,9 @@ contract ChannelManager is ECTools {
         uint256 balanceA,
         uint256 balanceB,
         string sigA,
-        string sigB
+        string sigB,
+        bool requireSigA,
+        bool requireSigB
     ) 
         public
         view
@@ -93,11 +95,16 @@ contract ChannelManager is ECTools {
 
         // require state info to be signed by both participants
         bytes32 fingerprint = keccak256(channelId, nonce, balanceA, balanceB);
-        bool signedByBoth = (
-            isSignedBy(fingerprint, sigA, channel.agentA) == true) && (isSignedBy(fingerprint, sigB, channel.agentB) == true
-        );
-        require(signedByBoth == true);
-        // return if true
+
+        if (requireSigA) {
+            require(isSignedBy(fingerprint, sigA, channel.agentA) == true);
+        }
+
+        if (requireSigB) {
+            require(isSignedBy(fingerprint, sigB, channel.agentB) == true);
+        }
+
+        // return true if all conditions pass
         return true;
     }
 
@@ -116,7 +123,9 @@ contract ChannelManager is ECTools {
         // sanity checks
         require(msg.sender == channel.agentA || msg.sender == channel.agentB); // comes from agent
         require(channel.status != ChannelStatus.Closed); // channel open or challenge status
-        require(isValidStateUpdate(channelId, nonce, balanceA, balanceB, sigA, sigB) == true); // valid signatures from both parties
+        require(
+            isValidStateUpdate(channelId, nonce, balanceA, balanceB, sigA, sigB, true, true) == true
+        ); // valid signatures from both parties
         require(nonce > channel.nonce); // need a higher sequence update
 
         // set state variables
