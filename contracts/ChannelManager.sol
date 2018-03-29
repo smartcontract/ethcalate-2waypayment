@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 import "./ECTools.sol";
 
-contract ChannelManager is ECTools {
+contract ChannelManager {
     event ChannelOpen(
         bytes32 indexed channelId,
         address indexed agentA,
@@ -97,11 +97,11 @@ contract ChannelManager is ECTools {
         bytes32 fingerprint = keccak256(channelId, nonce, balanceA, balanceB);
 
         if (requireSigA) {
-            require(isSignedBy(fingerprint, sigA, channel.agentA) == true);
+            require(ECTools.isSignedBy(fingerprint, sigA, channel.agentA) == true);
         }
 
         if (requireSigB) {
-            require(isSignedBy(fingerprint, sigB, channel.agentB) == true);
+            require(ECTools.isSignedBy(fingerprint, sigB, channel.agentB) == true);
         }
 
         // return true if all conditions pass
