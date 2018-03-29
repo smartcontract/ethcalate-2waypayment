@@ -1,72 +1,98 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Container, Header, Grid } from 'semantic-ui-react'
+import { Container, Header, Grid, Button, Form, Modal, Label, Input } from 'semantic-ui-react'
 
-import ReupButton from './ReupButton'
-import NewButton from './NewButton'
-import SearchButton from './SearchButton'
-import TransactionTable from './TransactionTable';
+// import CloseButton from './CloseButton'
+// import NewButton from './NewButton'
+import ChannelAccordion from './ChannelAccordion';
+import NewChannelModal from './NewChannelModal';
 
-const MainHeading = ({ mobile }) => (
+const MainHeading = () => (
     <Container text>
         <Header
             as='h2'
             content='Take your'
             style={{
-                fontSize: mobile ? '1.5em' : '1.7em',
+                fontSize: '1.7em',
                 fontWeight: 'normal',
                 marginBottom: 0,
-                marginTop: mobile ? '0.5em' : '1.5em'
+                marginTop: '1.5em'
             }}
         />
         <Header
             as='h1'
             content='Money Shot'
             style={{
-                fontSize: mobile ? '2em' : '4em',
+                fontSize: '4em',
                 fontWeight: 'normal',
-                marginBottom: mobile ? '1.5em' : '1em',
+                marginBottom: '1.5em',
                 marginTop: 0
             }}
         />
     </Container>
 )
 
-MainHeading.propTypes = {
-    mobile: PropTypes.bool,
-}
-
-const ButtonGrouping = () => (
-    <Container>
-        <Grid>
-            <Grid.Row columns='equal'>
-                <Grid.Column verticalAlign='left'>
-                    <ReupButton />
-                </Grid.Column>
-                <Grid.Column verticalAlign='center'>
-                    <NewButton />
-                </Grid.Column>
-                <Grid.Column verticalAlign='right'>
-                    <SearchButton />
-                </Grid.Column>
-            </Grid.Row>
-        </Grid>
-    </Container>
-)
-
-// const TransactionFeed = () => (
-//     <TransactionTable />
-// )
-
 class DesktopComponent extends React.Component {
-    state = {}
+    state = {
+        hideCloseChannelButton : null,
+    }
+
+    hideCloseChannelButton = (_activeChannelIndex) => {
+        this.setState({ 
+            hideCloseChannelButton : (_activeChannelIndex === -1)
+        })
+    }
+
+    async componentWillReceiveProps (nextProps) {
+        if (nextProps.channelManager) {
+            try {
+                const channelManagerInstance = await nextProps.channelManager.deployed()
+                this.setState({ channelManagerAddress: channelManagerInstance.address })
+            } catch(e) {
+                console.log(e)
+            }
+        }
+    }
+
+    closeChannel = async () => {
+        // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
+
+        // get contract instance
+        const channelManagerInstance = await this.props.channelManager.deployed()
+        return channelManagerInstance
+    }
 
     render() {
+        const {
+            web3,
+            web3detected,
+            accountAddress,
+            channelManager
+        } = this.props
+
+        const { hideCloseChannelButton, channelManagerAddress } = this.state
+
         return (
             <div>
+                
                 <MainHeading />
-                <ButtonGrouping />
-                <TransactionTable />
+
+                <Container>
+                    <Grid>
+                        <Grid.Row columns='equal'>
+                            <Grid.Column verticalAlign='left'>
+                            
+                                <NewChannelModal web3={web3} web3detected={web3detected} accountAddress={accountAddress} channelManager={channelManager} />
+
+                            </Grid.Column>
+                            <Grid.Column verticalAlign='right'>
+                                <Button disabled={hideCloseChannelButton} onClick={this.closeChannel}>Close Selected Channel</Button>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                </Container>
+
+                <ChannelAccordion callbackFromParent={this.hideCloseChannelButton}></ChannelAccordion>
+            
             </div>
         )
     }
