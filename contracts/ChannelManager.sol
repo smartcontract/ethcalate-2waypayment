@@ -22,7 +22,7 @@ contract ChannelManager is ECTools {
     }
 
     mapping (bytes32 => Channel) public channels;
-    mapping (address => mapping(address => bytes32)) public active_ids;
+    mapping (address => mapping(address => bytes32)) public activeIds;
 
     function openChannel(address to, uint challenge) payable public {
         require(challenge != 0);
@@ -38,7 +38,7 @@ contract ChannelManager is ECTools {
         // save to state
         channels[id] = channel;
         // Add it to the lookup table
-        active_ids[msg.sender][to] = id;
+        activeIds[msg.sender][to] = id;
     }
 
     function joinChannel(bytes32 id) payable public {
@@ -51,7 +51,7 @@ contract ChannelManager is ECTools {
         channel.depositB = msg.value;
     }
 
-    function isCloseValid(
+    function isValidStateUpdate(
         bytes32 channelId,
         uint256 nonce,
         uint256 balanceA,
@@ -66,7 +66,7 @@ contract ChannelManager is ECTools {
         // h = keccack(channelId, nonce, balanceA, balanceB)
         Channel memory channel = channels[channelId];
         require(balanceA + balanceB == channel.depositA + channel.depositB);
-        require(channel.status == ChannelStatus.Open);
+        require(channel.status == ChannelStatus.Open || channel.status == ChannelStatus.Challenge);
 
         // require state info to be signed by both participants
         bytes32 fingerprint = keccak256(channelId, nonce, balanceA, balanceB);
@@ -93,7 +93,7 @@ contract ChannelManager is ECTools {
         // sanity checks
         require(msg.sender == channel.agentA || msg.sender == channel.agentB); // comes from agent
         require(channel.status != ChannelStatus.Closed); // channel open or challenge status
-        require(isCloseValid(channelId, nonce, balanceA, balanceB, sigA, sigB)); // valid signatures from both parties
+        require(isValidStateUpdate(channelId, nonce, balanceA, balanceB, sigA, sigB) == true); // valid signatures from both parties
         require(nonce > channel.nonce); // need a higher sequence update
 
         // set state variables
@@ -134,13 +134,14 @@ contract ChannelManager is ECTools {
 
         // channel must be in challenge and challenge period over
         require(channel.status == ChannelStatus.Challenge);
-        require(now < channel.closeTime);
+        require(now > channel.closeTime);
 
         // if true, then use final state to close channel
         channel.agentA.transfer(channel.balanceA);
         channel.agentB.transfer(channel.balanceB);
 
         delete channels[channelId];
+        delete activeIds[channel.agentA][channel.agentB];
     }
 
     function getChannel(bytes32 id) public view returns(
