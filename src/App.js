@@ -58,6 +58,7 @@ class App extends Component {
     // const simpleStorage = contract(SimpleStorageContract)
     // simpleStorage.setProvider(this.state.web3.currentProvider)
 
+<<<<<<< HEAD
     // // Get accounts.
     // this.state.web3.eth.getAccounts(async (error, accounts) => {
     //   if (error) {
@@ -73,6 +74,24 @@ class App extends Component {
     //   })
     //   console.log(channelManagerInstance.address)
     // })
+=======
+    // Get accounts.
+    this.state.web3.eth.getAccounts(async (error, accounts) => {
+      if (error) {
+        console.log(error)
+        return
+      }
+
+      console.log(accounts)
+      const channelManagerInstance = await channelManager.deployed()
+      console.log(channelManagerInstance.address)
+
+      // let simpleStorageInstance = await simpleStorage.deployed()
+      // await simpleStorageInstance.set(5, {from: accounts[0]})
+      // let value = await simpleStorageInstance.get.call(accounts[0])
+      // this.setState({ storageValue: value.c[0] })
+    })
+>>>>>>> 72d8408d5ced13f16e72e9bf1ef4dee512413386
   }
 
   render () {
@@ -86,7 +105,11 @@ class App extends Component {
 
     return (
       <div className='App'>
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> 72d8408d5ced13f16e72e9bf1ef4dee512413386
         <div>
           <DesktopComponent 
             web3={web3} 
@@ -95,7 +118,7 @@ class App extends Component {
             channelManager={channelManager}
           />
         </div>
-      
+
       </div>
     )
   }

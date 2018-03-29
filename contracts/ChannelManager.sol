@@ -1,152 +1,200 @@
 pragma solidity ^0.4.18;
 
-contract ChannelManager {
+import "./ECTools.sol";
+
+contract ChannelManager is ECTools {
+    event ChannelOpen(
+        bytes32 indexed channelId,
+        address indexed agentA,
+        address indexed agentB,
+        uint256 depositA
+    );
+    event ChannelJoin(
+        bytes32 indexed channelId,
+        address indexed agentA,
+        address indexed agentB,
+        uint256 depositA,
+        uint256 depositB
+    );
+    event ChannelChallenge(
+        bytes32 indexed channelId,
+        uint256 nonce
+    );
+    event ChannelClose(bytes32 indexed channelId);
+
+    enum ChannelStatus {
+        Open,
+        Challenge,
+        Closed
+    }
+
     struct Channel {
         address agentA;
         address agentB;
-        address token;
         uint depositA; // Deposit of agent A
         uint depositB; // Deposit of agent B
-        bool openA; // True if A->B is open
-        bool openB; // True if B->A is open
+        ChannelStatus status; 
         uint challenge;
         uint nonce;
         uint closeTime;
-        uint valueBtoA; // for challenge
-        uint valueAtoB; // for challenge
+        uint balanceA; // for challenge
+        uint balanceB; // for challenge
     }
 
-    Channel public channel;
+    mapping (bytes32 => Channel) public channels;
+    mapping (address => mapping(address => bytes32)) public activeIds;
 
     function openChannel(address to, uint challenge) payable public {
+        require(challenge != 0);
+
+        bytes32 id = keccak256(msg.sender, to, now);
+        Channel memory channel;
         channel.agentA = msg.sender;
         channel.agentB = to;
         channel.depositA = msg.value;
-        channel.openA = true;
-        channel.openB = true;
+        channel.status = ChannelStatus.Open;
         channel.challenge = challenge;
+
+        // save to state
+        channels[id] = channel;
+        // Add it to the lookup table
+        activeIds[msg.sender][to] = id;
+        ChannelOpen(id, channel.agentA, channel.agentB, channel.depositA);
     }
 
-    function addDeposit() payable public {
-        if (channel.agentA == msg.sender && channel.openA == true) {
-            channel.depositA += msg.value;
-        } else if (channel.agentB == msg.sender && channel.openB == true) {
-            channel.depositB += msg.value;
-        } else {
-            assert(false);
-        }
+    function joinChannel(bytes32 id) payable public {
+        Channel storage channel = channels[id];
+
+        require(msg.sender == channel.agentB && channel.status == ChannelStatus.Open);
+        require(msg.value != 0);
+        require(channel.depositB == 0); // no re-up in this version
+
+        channel.depositB = msg.value;
+
+        ChannelJoin(id, channel.agentA, channel.agentB, channel.depositA, channel.depositB);
     }
 
-    function closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce) public {
-        // h[0]    Channel id
-        // h[1]    Hash of (id, value)
-        // h[2]    r of signature
-        // h[3]    s of signature
-        require(msg.sender == channel.agentA || msg.sender != channel.agentB);
+    function isValidStateUpdate(
+        bytes32 channelId,
+        uint256 nonce,
+        uint256 balanceA,
+        uint256 balanceB,
+        string sigA,
+        string sigB
+    ) 
+        public
+        view
+        returns (bool)
+    {
+        // h = keccack(channelId, nonce, balanceA, balanceB)
+        Channel memory channel = channels[channelId];
+        require(balanceA + balanceB == channel.depositA + channel.depositB);
+        require(channel.status == ChannelStatus.Open || channel.status == ChannelStatus.Challenge);
 
-        // Get the message signer and construct a proof
-        address signer = ecrecover(h[1], v, h[2], h[3]);
-        bytes32 proof = keccak256(h[0], value);
-
-        // Make sure the hash provided is of the channel id and the amount sent
-        // Ensure the proof matches, send the value, send the remainder, and delete the channel
-        require(proof == h[1]);
-
-        if (msg.sender == channel.agentA && signer == channel.agentB) {
-            if (channel.challenge == 0) {
-                // If there's no challenge period, close out the channel immediately.
-
-                // Close out the B->A side of the channel
-                require(value <= channel.depositB);
-                // Transfer value to closer
-                channel.agentA.transfer(value);
-                // Return remaining to other party
-                channel.agentB.transfer(channel.depositB - value);
-
-                // Close this side of the channel
-                channel.openB = false;
-                // Close the other side if no deposit was ever made
-                if (channel.depositA == 0) {
-                    channel.openA = false;
-                }
-            } else {
-                // Copy the data to the state and allow challenges
-
-                channel.nonce = nonce;
-                channel.valueBtoA = value;
-                channel.closeTime = now;
-            }
-        } else if (msg.sender == channel.agentB && signer == channel.agentA) {
-            if (channel.challenge == 0) {
-                // If there's no challenge period, close out the channel immediately.
-
-                // Close out the A->B side of the channel
-                require(value <= channel.depositA);
-                // Transfer value to closer
-                channel.agentB.transfer(value);
-                // Return remaining to other party
-                channel.agentA.transfer(channel.depositA - value);
-
-                // Close this side of the channel
-                channel.openA = false;
-                // Close the other side if no deposit was ever made
-                if (channel.depositB == 0) {
-                    channel.openB = false;
-                }
-            } else {
-                // Copy the data to the state and allow challenges
-
-                channel.nonce = nonce;
-                channel.valueAtoB = value;
-                channel.closeTime = now;
-            }
-        }
-
-        // If both sides of the channel are closed, delete the channel
-        if (channel.openA == false && channel.openB == false) {
-            // Close the channel
-            delete channel;
-        }
+        // require state info to be signed by both participants
+        bytes32 fingerprint = keccak256(channelId, nonce, balanceA, balanceB);
+        bool signedByBoth = (
+            isSignedBy(fingerprint, sigA, channel.agentA) == true) && (isSignedBy(fingerprint, sigB, channel.agentB) == true
+        );
+        require(signedByBoth == true);
+        // return if true
+        return true;
     }
 
-    function challenge(bytes32[4] h, uint8 v, uint256 value, uint256 nonce) public {
-        // Make sure we're still in the challenge period
-        require(now <= channel.closeTime + channel.challenge);
+    function updateState(
+        bytes32 channelId,
+        uint256 nonce,
+        uint256 balanceA,
+        uint256 balanceB,
+        string sigA,
+        string sigB
+    ) 
+        public
+    {
+        Channel storage channel = channels[channelId];
 
-        // Make sure the nonce is higher
-        require(nonce >= channel.nonce);
+        // sanity checks
+        require(msg.sender == channel.agentA || msg.sender == channel.agentB); // comes from agent
+        require(channel.status != ChannelStatus.Closed); // channel open or challenge status
+        require(isValidStateUpdate(channelId, nonce, balanceA, balanceB, sigA, sigB) == true); // valid signatures from both parties
+        require(nonce > channel.nonce); // need a higher sequence update
 
+        // set state variables
+        channel.balanceA = balanceA;
+        channel.balanceB = balanceB;
+        channel.nonce = nonce;
+    }
+
+    function startChallenge(
+        bytes32 channelId,
+        uint256 nonce,
+        uint256 balanceA,
+        uint256 balanceB,
+        string sigA,
+        string sigB
+    ) 
+        public
+    {
+        Channel storage channel = channels[channelId];
+
+        // update to valid state
+        updateState(channelId, nonce, balanceA, balanceB, sigA, sigB);
+
+        // update channel status
+        channel.status = ChannelStatus.Challenge;
+        channel.closeTime = now + channel.challenge;
+        
+        ChannelChallenge(channelId, nonce);
+    }
+
+    function closeChannel(
+        bytes32 channelId
+    )
+        public
+    {
+        Channel memory channel = channels[channelId];
+
+        // request must come from agents
         require(msg.sender == channel.agentA || msg.sender == channel.agentB);
 
-        address signer = ecrecover(h[1], v, h[2], h[3]);
-        bytes32 proof = keccak256(h[0], value);
+        // channel must be in challenge and challenge period over
+        require(channel.status == ChannelStatus.Challenge);
+        require(now > channel.closeTime);
 
-        require(proof == h[1]);
+        // if true, then use final state to close channel
+        channel.agentA.transfer(channel.balanceA);
+        channel.agentB.transfer(channel.balanceB);
 
-        if (msg.sender == channel.agentA && signer == channel.agentB) {
-            channel.nonce = nonce;
-            channel.valueBtoA = value;
-            channel.closeTime = now;
-        } else if (msg.sender == channel.agentB && signer == channel.agentA) {
-            channel.nonce = nonce;
-            channel.valueAtoB = value;
-            channel.closeTime = now;
-        }
+        delete channels[channelId];
+        delete activeIds[channel.agentA][channel.agentB];
+
+        ChannelClose(channelId);
     }
 
-    function finalize() public {
-        // Make sure we're past the challenge period
-        require(now > channel.closeTime + channel.challenge);
-
-        // Channel should only be closed by either agent
-        require(msg.sender == channel.agentA || msg.sender == channel.agentB);
-
-        // Transfer funds to agents
-        channel.agentA.transfer(channel.valueBtoA);
-        channel.agentB.transfer(channel.valueAtoB);
-
-        // TODO, does valueBtoA + valueAtoB always add up to depositA + depositB
-
-        delete channel;
+    function getChannel(bytes32 id) public view returns(
+        address,
+        address,
+        uint,
+        uint,
+        uint,
+        uint,
+        uint,
+        uint,
+        uint,
+        uint
+    ) {
+        Channel memory channel = channels[id];
+        return (
+            channel.agentA,
+            channel.agentB,
+            channel.depositA,
+            channel.depositB,
+            uint(channel.status),
+            channel.challenge,
+            channel.nonce,
+            channel.closeTime,
+            channel.balanceA,
+            channel.balanceB
+        );
     }
 }
