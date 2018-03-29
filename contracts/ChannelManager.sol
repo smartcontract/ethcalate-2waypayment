@@ -3,7 +3,12 @@ pragma solidity ^0.4.18;
 import "./ECTools.sol";
 
 contract ChannelManager is ECTools {
-    event ChannelOpen(bytes32 indexed channelId, address indexed agentA, address indexed agentB);
+    event ChannelOpen(
+        bytes32 indexed channelId,
+        address indexed agentA,
+        address indexed agentB,
+        uint256 depositA
+    );
     event ChannelJoin(
         bytes32 indexed channelId,
         address indexed agentA,
@@ -54,7 +59,7 @@ contract ChannelManager is ECTools {
         channels[id] = channel;
         // Add it to the lookup table
         activeIds[msg.sender][to] = id;
-        ChannelOpen(id, channel.agentA, channel.agentB);
+        ChannelOpen(id, channel.agentA, channel.agentB, channel.depositA);
     }
 
     function joinChannel(bytes32 id) payable public {
