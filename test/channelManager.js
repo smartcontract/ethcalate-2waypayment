@@ -4,6 +4,7 @@ const abi = require('ethereumjs-abi')
 const BigNumber = require('bignumber.js')
 
 const ChannelManager = artifacts.require('./ChannelManager.sol')
+const ECTools = artifacts.require('./ECTools.sol')
 
 function createTxHashToSign (activeId, nonce, balanceA, balanceB) {
   // fingerprint = keccak256(channelId, nonce, balanceA, balanceB)
@@ -18,6 +19,16 @@ function createTxHashToSign (activeId, nonce, balanceA, balanceB) {
 }
 
 contract('ChannelManager', async accounts => {
+  it.only('should run a random test', async () => {
+    const channelManager = await ChannelManager.deployed()
+    const ecTools = await ECTools.deployed()
+    const signer = await ecTools.recoverSigner(
+      '0x392273c2a059fd1dffa02c93c5614b191c4180cd46eba53a0a76d66c387a9f89',
+      '0x8e94f5c8cae1d2d0d4bb0b7e455f2ff9fc7dbb63f9d6f02fe03e652f64a3ee9738f9ad31bd6d8feb94f5a2ad63b7f0e889f1ce7d385d32ccb41416ab3606a1111b'
+    )
+    console.log(signer)
+  })
+
   const AGENT_A = accounts[0]
   const AGENT_B = accounts[1]
   const DEPOSIT_A = web3.toWei(10, 'ether')
@@ -55,14 +66,47 @@ contract('ChannelManager', async accounts => {
   })
 
   it('should recognize a valid double signed transaction', async () => {
+    const FROMATOB = web3.toWei(1, 'ether')
+    const NONCE = 1
+
+    const channelManager = await ChannelManager.deployed()
+    const activeId = await channelManager.activeIds.call(AGENT_A, AGENT_B)
+
+    this.balanceA = new BigNumber(DEPOSIT_A).minus(new BigNumber(FROMATOB))
+    this.balanceB = new BigNumber(DEPOSIT_B).plus(new BigNumber(FROMATOB))
+
+    const hash = createTxHashToSign(
+      activeId,
+      NONCE,
+      this.balanceA.toString(),
+      this.balanceB.toString()
+    )
+
+    const sigA = web3.eth.sign(AGENT_A, hash)
+    const sigB = web3.eth.sign(AGENT_B, hash)
+    const isValid = await channelManager.isValidStateUpdate.call(
+      activeId,
+      NONCE,
+      this.balanceA.toString(),
+      this.balanceB.toString(),
+      sigA,
+      sigB,
+      true,
+      true
+    )
+
+    assert.equal(isValid, true)
+  })
+
+  it('should recognize a valid single signed transaction from agentA', async () => {
     const FROMATOB = web3.toWei(0.5, 'ether')
     const NONCE = 1
 
     const channelManager = await ChannelManager.deployed()
     const activeId = await channelManager.activeIds.call(AGENT_A, AGENT_B)
 
-    const balanceA = new BigNumber(DEPOSIT_A).minus(new BigNumber(FROMATOB))
-    const balanceB = new BigNumber(DEPOSIT_B).plus(new BigNumber(FROMATOB))
+    const balanceA = new BigNumber(this.balanceA).minus(new BigNumber(FROMATOB))
+    const balanceB = new BigNumber(this.balanceB).plus(new BigNumber(FROMATOB))
 
     const hash = createTxHashToSign(
       activeId,
@@ -72,15 +116,46 @@ contract('ChannelManager', async accounts => {
     )
 
     const sigA = web3.eth.sign(AGENT_A, hash)
-    const sigB = web3.eth.sign(AGENT_B, hash)
     const isValid = await channelManager.isValidStateUpdate.call(
       activeId,
       NONCE,
       balanceA.toString(),
       balanceB.toString(),
       sigA,
-      sigB,
+      '',
       true,
+      false
+    )
+
+    assert.equal(isValid, true)
+  })
+
+  it('should recognize a valid single signed transaction from agentB', async () => {
+    const FROMATOB = web3.toWei(0.5, 'ether')
+    const NONCE = 1
+
+    const channelManager = await ChannelManager.deployed()
+    const activeId = await channelManager.activeIds.call(AGENT_A, AGENT_B)
+
+    const balanceA = new BigNumber(this.balanceA).minus(new BigNumber(FROMATOB))
+    const balanceB = new BigNumber(this.balanceB).plus(new BigNumber(FROMATOB))
+
+    const hash = createTxHashToSign(
+      activeId,
+      NONCE,
+      balanceA.toString(),
+      balanceB.toString()
+    )
+
+    const sigB = web3.eth.sign(AGENT_B, hash)
+    const isValid = await channelManager.isValidStateUpdate.call(
+      activeId,
+      NONCE,
+      balanceA.toString(),
+      balanceB.toString(),
+      '',
+      sigB,
+      false,
       true
     )
 
@@ -94,8 +169,8 @@ contract('ChannelManager', async accounts => {
     const channelManager = await ChannelManager.deployed()
     const activeId = await channelManager.activeIds.call(AGENT_A, AGENT_B)
 
-    let balanceA = new BigNumber(DEPOSIT_A).plus(new BigNumber(FROMBTOA))
-    let balanceB = new BigNumber(DEPOSIT_B).minus(new BigNumber(FROMBTOA))
+    let balanceA = new BigNumber(this.balanceA).plus(new BigNumber(FROMBTOA))
+    let balanceB = new BigNumber(this.balanceB).minus(new BigNumber(FROMBTOA))
 
     let hash = createTxHashToSign(
       activeId,
@@ -131,8 +206,8 @@ contract('ChannelManager', async accounts => {
     // new tx during challenge period is still valid
     /// /////////////////////////////////////////////
 
-    balanceA = new BigNumber(DEPOSIT_A).plus(new BigNumber(FROMBTOA))
-    balanceB = new BigNumber(DEPOSIT_B).minus(new BigNumber(FROMBTOA))
+    balanceA = new BigNumber(this.balanceA).plus(new BigNumber(FROMBTOA))
+    balanceB = new BigNumber(this.balanceB).minus(new BigNumber(FROMBTOA))
 
     hash = createTxHashToSign(
       activeId,
@@ -188,11 +263,13 @@ contract('ChannelManager', async accounts => {
       endingBalanceA.toNumber() - startingBalanceA.toNumber(),
       'ether'
     )
+    console.log('differenceA: ', differenceA)
 
     const differenceB = web3.fromWei(
       endingBalanceB.toNumber() - startingBalanceB.toNumber(),
       'ether'
     )
+    console.log('differenceB: ', differenceB)
 
     // round up to account for gas costs
     assert.equal(
