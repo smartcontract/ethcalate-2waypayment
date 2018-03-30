@@ -9,8 +9,8 @@ library ECTools {
         require(_hashedMsg != 0x00);
 
         // need this for test RPC
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 prefixedHash = keccak256(prefix, _hashedMsg);
+        // bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        // bytes32 prefixedHash = keccak256(prefix, _hashedMsg);
 
         if (bytes(_sig).length != 132) {
             return 0x0;
@@ -30,7 +30,7 @@ library ECTools {
         if (v < 27 || v > 28) {
             return 0x0;
         }
-        return ecrecover(prefixedHash, v, r, s);
+        return ecrecover(_hashedMsg, v, r, s);
     }
 
     // @dev Verifies if the message is signed by an address
