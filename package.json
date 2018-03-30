@@ -5,7 +5,7 @@
   "devDependencies": {
     "autoprefixer": "6.5.1",
     "babel-core": "6.17.0",
-    "babel-eslint": "7.1.1",
+    "babel-eslint": "^8.2.2",
     "babel-jest": "17.0.2",
     "babel-loader": "6.2.7",
     "babel-preset-react-app": "^2.0.1",
@@ -16,7 +16,7 @@
     "css-loader": "0.26.0",
     "detect-port": "1.0.1",
     "dotenv": "2.0.0",
-    "eslint": "3.8.1",
+    "eslint": "4.19.1",
     "eslint-config-react-app": "^0.5.0",
     "eslint-loader": "1.6.0",
     "eslint-plugin-flowtype": "2.21.0",
@@ -50,7 +50,9 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bignumber.js": "^6.0.0",
+    "check-types": "^7.3.0",
     "dotenv": "^2.0.0",
     "ethereumjs-abi": "^0.6.5",
     "react": "^15.4.2",
@@ -102,7 +104,10 @@
     ]
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "parser": "babel-eslint",
+    "extends": [
+      "react-app"
+    ]
   },
   "standard": {
     "parser": "babel-eslint"
