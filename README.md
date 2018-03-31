@@ -23,7 +23,7 @@ ChannelManager.sol is the primary instantiator contract for new bidirectional ch
 ```0x35cc32f52e4fa612c8e13ec270be61403196d4d9```
 
 ### openChannel()
-Inputs: `address to, uint challenge` 
+Inputs: ``address to, uint challenge`` 
 Modifiers: `payable public`
 Output:
 Notes:
