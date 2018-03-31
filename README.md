@@ -18,7 +18,64 @@ If all it takes is a double signed message to close the channel, what stops Bob 
 
 ## ChannelManager.sol Explanation
 
-TO DO
+ChannelManager.sol is the primary instantiator contract for new bidirectional channels. The testnet contract is deployed to Rinkeby at
+
+```0x35cc32f52e4fa612c8e13ec270be61403196d4d9```
+
+### openChannel()
+Inputs: `address to, uint challenge` 
+Modifiers: `payable public`
+Output:
+Notes:
+`openChannel` can be called by any address to create a new channel. For now, the function takes the "from" address from `msg.sender`, though this will be generalized later to any signing party. Note: the stake/deposit for the channel creator (address 1) is sent when calling the function. The stake/deposit for the counterparty (address 2) is sent in the `joinChannel()` function below.
+
+`challenge` represents the amount of time that the challenge period will run for.
+
+`openChannel` generates a `channelID` when it is called and emits an event, `ChannelOpen(id, channel.agentA, channel.agentB, channel.depositA)`
+
+### joinChannel()
+Inputs: `bytes32 id` (this is channelID)
+Modifiers: `payable public`
+Output:
+Notes:
+`joinChannel` allows the counterparty, address 2, to stake funds into the channel to allow it to be bidirectional. When the function is called, it emits an event `ChannelJoin(id, channel.agentA, channel.agentB, channel.depositA, channel.depositB)`
+
+### isValidStateUpdate()
+Inputs: `bytes32 channelId, uint256 nonce, uint256 balanceA, uint256 balanceB, string sigA, string sigB, bool requireSigA, bool requireSigB`
+Modifiers: `public view`
+Output: `bool`
+Notes:
+Helper that can be used internally and externally to check a signed state update.
+
+### updateState()
+Inputs: `bytes32 channelId, uint256 nonce, uint256 balanceA, uint256 balanceB, string sigA, string sigB`
+Modifiers: `public`
+Output:
+Notes:
+`updateState` updates state using `isValidStateUpdate()`. If the channel is not being closed, this can be used to "checkpoint" the channel
+
+### startChallenge()
+Inputs: `bytes32 channelID, uint256 nonce, uint256 balanceA, uint256 balanceB, string sigA, string sigB`
+Modifiers: `public`
+Output:
+Notes:
+Initiates the challenge period prior to closing the channel. `startChallenge()` must be called explicitly for now. When the challenge period begins, the challenge timeout will be set to current block time + the challenge time specified in `openChallenge`.
+
+Emits an event ` ChannelChallenge(channelId, nonce);`
+
+### closeChannel()
+Inputs: `bytes32 channelId`
+Modifiers: `public`
+Output:
+Notes:
+Closes the channel after the timeout period ends. Must be called to close the channel (by one of the two members of the channel). Close channel just deletes the channel from the listed channels, so it's just good practice for cleanup.
+
+### getChannel()
+Inputs: `bytes32 id`
+Modifiers: `public view`
+Output: `address, address, uint, uint, uint, uint, uint, uint, uint, uint`
+Notes:
+Basic getter for channel info. Returns addresses of participants, depositA, depositB, channel status (open, challenge, close), nonce, closeTime, balanceA, balanceB
 
 ## Contributing
 
