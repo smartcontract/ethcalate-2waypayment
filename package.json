@@ -15,7 +15,7 @@
     "cross-spawn": "4.0.2",
     "css-loader": "0.26.0",
     "detect-port": "1.0.1",
-    "dotenv": "2.0.0",
+    "dotenv": "^2.0.0",
     "eslint": "4.19.1",
     "eslint-config-react-app": "^0.5.0",
     "eslint-loader": "1.6.0",
@@ -53,13 +53,13 @@
     "axios": "^0.18.0",
     "bignumber.js": "^6.0.0",
     "check-types": "^7.3.0",
-    "dotenv": "^2.0.0",
     "ethereumjs-abi": "^0.6.5",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "redux-orm": "^0.9.4",
     "semantic-ui-css": "^2.3.1",
-    "semantic-ui-react": "^0.79.0"
+    "semantic-ui-react": "^0.79.0",
+    "truffle-hdwallet-provider-privkey": "^0.1.0"
   },
   "scripts": {
     "start": "node scripts/start.js",

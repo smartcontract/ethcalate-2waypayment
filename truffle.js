@@ -1,4 +1,21 @@
+require('dotenv').config()
+const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
+
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
-};
+  networks: {
+    development: {
+      host: 'localhost',
+      port: 9545,
+      network_id: '*' // Match any network id
+    },
+    rinkeby: {
+      provider: () => {
+        return new HDWalletProvider(
+          process.env.ETH_KEY,
+          process.env.ETH_NODE_URL
+        )
+      },
+      network_id: 4
+    }
+  }
+}
