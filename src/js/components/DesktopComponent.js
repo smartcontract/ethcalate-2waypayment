@@ -33,9 +33,12 @@ const MainHeading = () => (
 
 class DesktopComponent extends React.Component {
   state = {
-    hideCloseChannelButton: null
+    activeChannelIndex: null,
+    channelManagerAddress: null,
+    channelStatus: null
   }
 
+  // retrieve the channel manager contract address if set
   async componentWillReceiveProps (nextProps) {
     if (nextProps.channelManager) {
       try {
@@ -47,23 +50,41 @@ class DesktopComponent extends React.Component {
     }
   }
 
-  hideCloseChannelButton = _activeChannelIndex => {
+  // updates whether the close and challenge buttons should be active
+  hideChannelButtons = _activeChannelIndex => {
+    // get channel status from active channel index
+    
+
+
     this.setState({
-      hideCloseChannelButton: _activeChannelIndex === -1
+      activeChannelIndex: _activeChannelIndex
     })
   }
 
+  // call the ethcalate.closeChannel() function here
+  // retrieve parameters from the ethcalate hub database
   closeChannel = async () => {
     // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
+    const { ethcalate, myChannels } = this.props
+    const { activeChannelIndex, channelManagerAddress } = this.state
 
     // get contract instance
     const channelManagerInstance = await this.props.channelManager.deployed()
     return channelManagerInstance
   }
 
+  // call the ethcalate.issueChallenge() function here
+  issueChallenge = async () => {
+    const { ethcalate, myChannels } = this.props
+    const { activeChannelIndex, channelManagerAddress } = this.state
+
+
+  }
+
   render () {
     const { ethcalate, myChannels } = this.props
-    const { hideCloseChannelButton } = this.state
+    const { activeChannelIndex } = this.state
+    const hideChannelButton = activeChannelIndex === -1
 
     return (
       <div>
@@ -79,19 +100,43 @@ class DesktopComponent extends React.Component {
 
               </Grid.Column>
               <Grid.Column>
+                
                 <Button
-                  disabled={hideCloseChannelButton}
+                  disabled={hideChannelButton}
                   onClick={this.closeChannel}
                 >
                   Close Selected Channel
                 </Button>
+
               </Grid.Column>
+              <Grid.Column>
+                
+                <Button
+                  disabled={hideChannelButton}
+                  onClick={this.issueChallenge}
+                >
+                  Issue Channel Challenge
+                </Button>
+                
+              </Grid.Column>
+
+              <Grid.Column>
+                
+                <Button
+                  disabled={hideChannelButton}
+                  onClick={this.joinChannel}
+                >
+                  Join Selected Channel
+                </Button>
+                
+              </Grid.Column>
+
             </Grid.Row>
           </Grid>
         </Container>
 
         <ChannelAccordion
-          callbackFromParent={this.hideCloseChannelButton}
+          callbackFromParent={this.hideChannelButtons}
           myChannels={myChannels}
           ethcalate={ethcalate}
         />
