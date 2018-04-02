@@ -48,7 +48,6 @@ module.exports = class Ethcalate {
       from: this.account,
       value: this.web3.toWei(depositInEth, 'ether')
     })
-    console.log(result)
     return result
   }
 
@@ -67,13 +66,6 @@ module.exports = class Ethcalate {
   }
 
   async signTx ({ channelId, nonce, balanceA, balanceB }) {
-    console.log(
-      'channelId, nonce, balanceA, balanceB: ',
-      channelId,
-      nonce,
-      balanceA,
-      balanceB
-    )
     // fingerprint = keccak256(channelId, nonce, balanceA, balanceB)
     let hash = abi
       .soliditySHA3(
@@ -89,7 +81,6 @@ module.exports = class Ethcalate {
         if (error) {
           reject(error)
         } else {
-          console.log('result: ', result)
           resolve(result)
         }
       })
@@ -126,8 +117,75 @@ module.exports = class Ethcalate {
       requireSigA,
       requireSigB
     })
-    console.log('response: ', response)
     return response.data
+  }
+
+  async startChallengePeriod (channelId) {
+    if (!this.channelManager) {
+      throw new Error('Please call initContract()')
+    }
+    let response = await axios.get(`${this.apiUrl}/channel/${channelId}`)
+    let { channel } = response.data
+    let sig
+    if (channel.agentA === this.web3.eth.accounts[0]) {
+      // need sigB
+      sig = 'sigB'
+    } else if (channel.agentB === this.web3.eth.accounts[0]) {
+      // need sigA
+      sig = 'sigA'
+    } else {
+      throw new Error('Not my channel')
+    }
+
+    response = await axios.get(
+      `${this.apiUrl}/channel/${channelId}/latest?sig=${sig}`
+    )
+    channel = response.data.channel
+
+    const latestCountersignedTransction = channel.transactions[0]
+    if (latestCountersignedTransction) {
+      const {
+        nonce,
+        balanceA,
+        balanceB,
+        sigA,
+        sigB
+      } = latestCountersignedTransction
+      const signedTx = await this.signTx({
+        channelId,
+        nonce,
+        balanceA,
+        balanceB
+      })
+      if (sig === 'sigA') {
+        // ours is sigB
+        await this.channelManager.startChallenge(
+          channelId,
+          nonce,
+          balanceA,
+          balanceB,
+          sigA,
+          signedTx
+        )
+      } else {
+        // ours is sigA
+        await this.channelManager.startChallenge(
+          channelId,
+          nonce,
+          balanceA,
+          balanceB,
+          signedTx,
+          sigB
+        )
+      }
+    } else {
+      // no countersigned transactions
+    }
+  }
+
+  async closeChannel (channelId) {
+    const res = await this.channelManager.closeChannel(channelId)
+    console.log('res: ', res)
   }
 
   async updatePhone (phone) {
@@ -139,31 +197,10 @@ module.exports = class Ethcalate {
     return response.data
   }
 
-  async getChannelStatus (channelID) {
-    check.assert.string(channelID, 'No channelID provided')
-    const response = await axios.post(`${this.apiUrl}/getChannelStatus`, {
-      channelID
-    })
+  async getChannel (channelId) {
+    check.assert.string(channelId, 'No channelId provided')
+    const response = await axios.get(`${this.apiUrl}/channel/${channelId}`)
     return response.data
-  }
-
-  async getUpdates (channelID, nonce) {
-    check.assert.string(channelID, 'No phone number provided')
-    if (!nonce) {
-      nonce = 0
-    }
-    const statusResponse = await axios.post(`${this.apiUrl}/getChannelStatus`, {
-      channelID
-    })
-    if (statusResponse.data.status !== 'open') {
-      console.log('Status: ' + statusResponse.data.status)
-    }
-
-    const response = await axios.get(`${this.apiUrl}/state`, {
-      channelID,
-      nonce
-    })
-    return { data: response.data, status: statusResponse.data.status }
   }
 
   async getMyChannels () {
@@ -189,12 +226,12 @@ module.exports = class Ethcalate {
     }
   }
 
-  async getChannelID (counterparty) {
-    check.assert.string(counterparty, 'No counterparty account provided')
-    const response = await axios.post(`${this.apiUrl}/getChannelID`, {
-      address1: this.account,
-      address2: counterparty
-    })
+  async getChannelByAddresses (agentA, agentB) {
+    check.assert.string(agentA, 'No agentA account provided')
+    check.assert.string(agentB, 'No agentB account provided')
+    const response = await axios.get(
+      `${this.apiUrl}/channel/${agentA}/${agentB}`
+    )
     return response.data
   }
 }
