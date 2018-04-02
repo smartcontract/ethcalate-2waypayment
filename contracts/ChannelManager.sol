@@ -45,7 +45,10 @@ contract ChannelManager {
     mapping (address => mapping(address => bytes32)) public activeIds;
 
     function openChannel(address to, uint challenge) payable public {
-        require(challenge != 0);
+        require(challenge != 0); // need to have challenge period
+        require(to != address(0)); // need counterparty address
+        require(to != msg.sender); // cant create with yourself
+        require(activeIds[msg.sender][to] == bytes32(0)); // if channel is already open dont create
 
         bytes32 id = keccak256(msg.sender, to, now);
         Channel memory channel;
