@@ -37,6 +37,8 @@ class ChannelAccordion extends Component {
     console.log('handleJoinChannelClick with channelId:' + id)
     const { ethcalate } = this.props
 
+    console.log(agentA, agentB)
+
     // detect who is counterparty
     let isAgentA
     if (ethcalate.web3.eth.accounts[0] === agentA) {
@@ -52,10 +54,30 @@ class ChannelAccordion extends Component {
       const res = await ethcalate.updateState({
         channelId: id,
         nonce: parseInt(latestNonce) + 2,
-        balanceA: ethcalate.web3.toWei(1.5, 'ether'),
-        balanceB: ethcalate.web3.toWei(0.5, 'ether'),
+        balanceA: ethcalate.web3.toWei(0.5, 'ether'),
+        balanceB: ethcalate.web3.toWei(1.5, 'ether'),
         isAgentA
       })
+      console.log('res: ', res)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  handleStartChallengeClick = async channelId => {
+    const { ethcalate } = this.props
+    try {
+      const res = await ethcalate.startChallengePeriod(channelId)
+      console.log('res: ', res)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  handleCloseChannelClick = async channelId => {
+    const { ethcalate } = this.props
+    try {
+      const res = await ethcalate.closeChannel(channelId)
       console.log('res: ', res)
     } catch (e) {
       console.log(e)
@@ -66,9 +88,13 @@ class ChannelAccordion extends Component {
     return (
       <Grid centered celled>
         <Grid.Row columns='equal'>
-          <Grid.Column>{agentB}</Grid.Column>
-          <Grid.Column>{balanceA}</Grid.Column>
-          <Grid.Column>{balanceB}</Grid.Column>
+          <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
+          <Grid.Column>
+            {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
+          </Grid.Column>
+          <Grid.Column>
+            {balanceB ? parseFloat(balanceB).toFixed(4) : 0}
+          </Grid.Column>
           <Grid.Column>{status}</Grid.Column>
           <Grid.Column>{latestNonce}</Grid.Column>
           <Grid.Column>
@@ -81,13 +107,25 @@ class ChannelAccordion extends Component {
               onClick={() =>
                 this.handleUpdateStateClick({
                   id,
+                  agentA,
                   agentB,
                   balanceA,
                   balanceB,
-                  latestNonce
+                  latestNonce,
+                  status
                 })}
             >
               Update State
+            </Button>
+          </Grid.Column>
+          <Grid.Column>
+            <Button onClick={() => this.handleStartChallengeClick(id)}>
+              Start Challenge
+            </Button>
+          </Grid.Column>
+          <Grid.Column>
+            <Button onClick={() => this.handleCloseChannelClick(id)}>
+              Close Channel
             </Button>
           </Grid.Column>
         </Grid.Row>
@@ -137,28 +175,6 @@ class ChannelAccordion extends Component {
             {myChannels.map((channel, index) => {
               return this.accordionRow(channel)
             })}
-            <Accordion.Title
-              active={activeIndex === 0}
-              index={0}
-              onClick={this.handleClick}
-            >
-              {channelGrid}
-            </Accordion.Title>
-            <Accordion.Content active={activeIndex === 0}>
-              <TransactionTable />
-            </Accordion.Content>
-
-            <Accordion.Title
-              active={activeIndex === 1}
-              index={1}
-              onClick={this.handleClick}
-            >
-              {channelGrid}
-            </Accordion.Title>
-            <Accordion.Content active={activeIndex === 1}>
-              <TransactionTable />
-            </Accordion.Content>
-
           </Accordion>
         </Container>
       </div>
