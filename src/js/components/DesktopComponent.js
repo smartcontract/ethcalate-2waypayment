@@ -53,9 +53,6 @@ class DesktopComponent extends React.Component {
   // updates whether the close and challenge buttons should be active
   hideChannelButtons = _activeChannelIndex => {
     // get channel status from active channel index
-    
-
-
     this.setState({
       activeChannelIndex: _activeChannelIndex
     })
