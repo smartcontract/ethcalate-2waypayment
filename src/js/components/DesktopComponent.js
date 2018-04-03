@@ -1,79 +1,79 @@
 import React from 'react'
 import { Container, Header, Grid, Button } from 'semantic-ui-react'
 
-// import CloseButton from './CloseButton'
-// import NewButton from './NewButton'
 import ChannelAccordion from './ChannelAccordion'
 import NewChannelModal from './NewChannelModal'
+import UserSettingsModal from './UserSettingsModal'
 
 const MainHeading = () => (
   <Container text>
-    <Header
-      as='h2'
-      content='Take your'
-      style={{
-        fontSize: '1.7em',
-        fontWeight: 'normal',
-        marginBottom: 0,
-        marginTop: '1.5em'
-      }}
-    />
-    <Header
-      as='h1'
-      content='Money Shot'
-      style={{
-        fontSize: '4em',
-        fontWeight: 'normal',
-        marginBottom: '1.5em',
-        marginTop: 0
-      }}
-    />
+      <Header
+        as='h2'
+        content='Take your'
+        style={{
+          fontSize: '1.7em',
+          fontWeight: 'normal',
+          marginBottom: 0,
+          marginTop: '1.5em'
+        }}
+      />
+      <Header
+        as='h1'
+        content='Money Shot'
+        style={{
+          fontSize: '4em',
+          fontWeight: 'normal',
+          marginBottom: '1em',
+          marginTop: 0
+        }}
+      />
   </Container>
 )
 
 class DesktopComponent extends React.Component {
   state = {
     activeChannelIndex: null,
-    channelManagerAddress: null,
-    channelStatus: null
+    channelId: null
   }
 
   // retrieve the channel manager contract address if set
   async componentWillReceiveProps (nextProps) {
-    if (nextProps.channelManager) {
-      try {
-        const channelManagerInstance = await nextProps.channelManager.deployed()
-        this.setState({ channelManagerAddress: channelManagerInstance.address })
-      } catch (e) {
-        console.log(e)
-      }
+    if (nextProps && this.props.ethcalate) {
+      console.log('componentWillRecieveProps()')
+      const { ethcalate, myChannels } = this.props
+      console.log('ethcalate.channelManager.address: ' + ethcalate.channelManager.address)
     }
+    // const { ethcalate, myChannels } = this.props
+    // if (nextProps.channelManager) {
+    //   try {
+    //     const channelManagerInstance = await nextProps.channelManager.deployed()
+    //     this.setState({ channelManagerAddress: channelManagerInstance.address })
+    //   } catch (e) {
+    //     console.log(e)
+    //   }
+    // }
   }
 
-  // updates whether the close and challenge buttons should be active
+
   hideChannelButtons = _activeChannelIndex => {
-    // get channel status from active channel index
     this.setState({
       activeChannelIndex: _activeChannelIndex
     })
   }
 
-  // call the ethcalate.closeChannel() function here
-  // retrieve parameters from the ethcalate hub database
+
   closeChannel = async () => {
     // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
     const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex, channelManagerAddress } = this.state
+    const { activeChannelIndex } = this.state
 
     // get contract instance
-    const channelManagerInstance = await this.props.channelManager.deployed()
-    return channelManagerInstance
+    await ethcalate.closeChannel()
   }
 
-  // call the ethcalate.issueChallenge() function here
   issueChallenge = async () => {
     const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex, channelManagerAddress } = this.state
+    const { activeChannelIndex } = this.state
 
 
   }
@@ -83,14 +83,28 @@ class DesktopComponent extends React.Component {
     const { activeChannelIndex } = this.state
     const hideChannelButton = activeChannelIndex === -1
 
+    console.log(myChannels)
+    console.log(myChannels.length !== 0)
+
     return (
       <div>
-
-        <MainHeading />
-
         <Container>
           <Grid>
-            <Grid.Row columns='equal'>
+            <Grid.Row verticalAlign='top' style={{marginTop: '1.5em'}}>
+              
+              {/* <Grid.Column floated='left'>
+                <UserSettingsModal ethcalate={ethcalate}/>
+              </Grid.Column> */}
+              
+            </Grid.Row>
+      
+            <Grid.Row>
+              <Grid.Column>
+                <MainHeading />
+              </Grid.Column>
+            </Grid.Row>
+            
+            <Grid.Row columns='equal' verticalAlign='middle'>
               <Grid.Column>
 
                 <NewChannelModal ethcalate={ethcalate} />
@@ -117,7 +131,7 @@ class DesktopComponent extends React.Component {
                 
               </Grid.Column>
 
-              <Grid.Column>
+              <Grid.Column >
                 
                 <Button
                   disabled={hideChannelButton}
@@ -136,6 +150,7 @@ class DesktopComponent extends React.Component {
           callbackFromParent={this.hideChannelButtons}
           myChannels={myChannels}
           ethcalate={ethcalate}
+          visible={myChannels.length !== 0}
         />
 
       </div>

@@ -28,7 +28,7 @@ class TransactionTable extends Component {
             </thead>
             <tbody />
           </Table>
-        </Container>`
+        </Container>
       </div>
     )
   }
