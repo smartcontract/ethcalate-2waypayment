@@ -21,7 +21,7 @@ class NewChannelModal extends Component {
     const { ethcalate } = this.props
 
     const depositInWei = ethcalate.web3.toWei(deposit, 'ether')
-    console.log('to, challenge, deposit: ', to, challenge, deposit)
+    console.log('to, challenge, depositInWei: ', to, challenge, depositInWei)
     // create new channel with params
     try {
       await ethcalate.openChannel({ to, depositInWei, challenge })

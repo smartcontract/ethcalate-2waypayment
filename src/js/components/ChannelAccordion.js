@@ -85,10 +85,29 @@ class ChannelAccordion extends Component {
   }
 
   channelGrid ({ id, agentA, agentB, balanceA, balanceB, latestNonce, status }) {
+    const { ethcalate } = this.props
+
+    let joinChannelContent
+    if (
+      ethcalate &&
+      ethcalate.web3 &&
+      agentB === ethcalate.web3.eth.accounts[0] &&
+      parseFloat(balanceB) === 0
+    ) {
+      joinChannelContent = (
+        <Button onClick={this.joinChannel}>
+          Issue Channel Challenge
+        </Button>
+      )
+    } else {
+      joinChannelContent = agentB ? `${agentB.slice(0, 10)}...` : ''
+    }
+
     return (
       <Grid centered celled>
         <Grid.Row columns='equal'>
-          <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
+          <Grid.Column>{agentA ? `${agentA.slice(0, 10)}...` : ''}</Grid.Column>
+          <Grid.Column>{joinChannelContent}</Grid.Column>
           <Grid.Column>
             {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
           </Grid.Column>
