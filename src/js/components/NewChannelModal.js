@@ -10,7 +10,7 @@ class NewChannelModal extends Component {
     submittedParty: null,
     submittedChallengePeriod: null,
     modalOpen: false,
-    fieldError: null,
+    fieldError: null
   }
 
   async componentWillReceiveProps (nextProps) {}
@@ -27,11 +27,13 @@ class NewChannelModal extends Component {
     }
   }
 
-  handleOpen = () => { this.setState({ modalOpen: true }) }
+  handleOpen = () => {
+    this.setState({ modalOpen: true })
+  }
 
   handleClose = () => {
     // close modal
-    this.setState({ modalOpen: false }) 
+    this.setState({ modalOpen: false })
   }
 
   handleChange = e => {
@@ -99,7 +101,7 @@ class NewChannelModal extends Component {
               />
               <Message
                 warning
-                header="Thats a short challenge period!"
+                header='Thats a short challenge period!'
                 content='Seems like your challenge period is less than an hour, you sure?'
               />
             </Form.Field>
