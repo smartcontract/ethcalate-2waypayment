@@ -3,14 +3,13 @@ import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
-import JoinChannelButton from './JoinChannelButton'
+import JoinChannelModal from './JoinChannelModal'
 import UpdateStateModal from './UpdateStateModal'
 import CloseChannelButton from './CloseChannelButton'
 
-
 class ChannelAccordion extends Component {
   state = {
-    activeIndex: null,
+    activeIndex: null
   }
 
   handleRowClick = (e, titleProps) => {
@@ -93,63 +92,119 @@ class ChannelAccordion extends Component {
     }
   }
 
-  channelTitlePanel ({ id, agentA, agentB, balanceA, balanceB, latestNonce, status }) {
+  channelTitlePanel ({
+    id,
+    agentA,
+    agentB,
+    balanceA,
+    balanceB,
+    latestNonce,
+    status
+  }) {
+    const { ethcalate } = this.props
+
+    // determine who is counterparty
+    let counterparty
+    let myBalance
+    let counterpartyBalance
+    // format balances
+    if (agentA === ethcalate.web3.eth.accounts[0]) {
+      counterparty = agentB
+      myBalance = balanceA
+        ? parseFloat(ethcalate.web3.fromWei(balanceA, 'ether')).toFixed(4)
+        : 0
+      counterpartyBalance = balanceB
+        ? parseFloat(ethcalate.web3.fromWei(balanceB, 'ether')).toFixed(4)
+        : 0
+    } else if (agentB === ethcalate.web3.eth.accounts[0]) {
+      counterparty = agentA
+      myBalance = balanceB
+        ? parseFloat(ethcalate.web3.fromWei(balanceB, 'ether')).toFixed(4)
+        : 0
+      counterpartyBalance = balanceA
+        ? parseFloat(ethcalate.web3.fromWei(balanceA, 'ether')).toFixed(4)
+        : 0
+    }
+
     return (
       <Container>
-      <Grid centered>
-        <Grid.Row columns='equal' verticalAlign='middle'>
-          <Grid.Column>
-            <Header className='h3 centered'>Counterparty</Header>
-            <Header className='centered sub header'>{agentB}</Header>
-          </Grid.Column>
-          <Grid.Column>
-            <Header className='h3 centered'>Balances</Header>
-            <Grid.Row>
-              <Header className='centered sub header'>Mine: {balanceA ? parseFloat(balanceA).toFixed(4) : 0}</Header>
-              <Header className='centered sub header'>Counterparty: {balanceB ? parseFloat(balanceB).toFixed(4) : 0}</Header>
-            </Grid.Row>
-          </Grid.Column>
-          <Grid.Column>
-            <Header className='h3 centered'>Status</Header>
-            <Header className='centered sub header'>{status}</Header>
-          </Grid.Column>
+        <Grid centered>
+          <Grid.Row columns='equal' verticalAlign='middle'>
+            <Grid.Column>
+              <Header className='h3 centered'>Counterparty</Header>
+              <Header className='centered sub header'>{counterparty}</Header>
+            </Grid.Column>
+            <Grid.Column>
+              <Header className='h3 centered'>Balances</Header>
+              <Grid.Row>
+                <Header className='centered sub header'>
+                  Mine: {myBalance}
+                </Header>
+                <Header className='centered sub header'>
+                  Counterparty: {counterpartyBalance}
+                </Header>
+              </Grid.Row>
+            </Grid.Column>
+            <Grid.Column>
+              <Header className='h3 centered'>Status</Header>
+              <Header className='centered sub header'>{status}</Header>
+            </Grid.Column>
 
-        </Grid.Row>
-      </Grid>
+          </Grid.Row>
+        </Grid>
 
       </Container>
     )
   }
 
   channelDetailsPanel (channel) {
-    const { id, agentA, agentB, balanceA, balanceB, latestNonce, status } = channel
+    const { ethcalate } = this.props
+    const {
+      id,
+      agentA,
+      agentB,
+      balanceA,
+      balanceB,
+      latestNonce,
+      status
+    } = channel
+
+    let allowJoin = false
+    if (ethcalate && ethcalate.web3) {
+      allowJoin =
+        agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
+    }
     return (
       <Container>
         <Grid centered columns='equal'>
           <Grid.Row>
-            
+
             <Grid.Column>
-              <UpdateStateModal />
+              <UpdateStateModal channel={channel} ethcalate={ethcalate} />
             </Grid.Column>
-            
+
             <Grid.Column>
-              <JoinChannelButton />
+              {allowJoin
+                ? <JoinChannelModal channelId={id} ethcalate={ethcalate} />
+                : <div />}
             </Grid.Column>
-            
+
             <Grid.Column>
               <ChallengeButton />
             </Grid.Column>
-            
+
             <Grid.Column>
               <CloseChannelButton />
             </Grid.Column>
-          
+
           </Grid.Row>
         </Grid>
 
         <Grid centered>
           <Grid.Row>
-            <Header className='centered h4' style={{marginTop:'1em'}}>Latest Transactions</Header>
+            <Header className='centered h4' style={{ marginTop: '1em' }}>
+              Latest Transactions
+            </Header>
           </Grid.Row>
           <Grid.Row>
             <TransactionTable channel={channel} />
@@ -158,9 +213,7 @@ class ChannelAccordion extends Component {
 
         <Grid centered>
           <Grid.Row columns='equal'>
-            <Grid.Column>
-
-            </Grid.Column>
+            <Grid.Column />
           </Grid.Row>
         </Grid>
 
@@ -185,7 +238,11 @@ class ChannelAccordion extends Component {
   accordionRow (channel, index) {
     return (
       <div key={channel.id}>
-        <Accordion.Title active={this.state.activeIndex === index} index={index} onClick={this.handleRowClick}>
+        <Accordion.Title
+          active={this.state.activeIndex === index}
+          index={index}
+          onClick={this.handleRowClick}
+        >
           {this.channelTitlePanel(channel)}
         </Accordion.Title>
         <Accordion.Content active={this.state.activeIndex === index}>

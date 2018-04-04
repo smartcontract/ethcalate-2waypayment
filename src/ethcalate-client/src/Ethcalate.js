@@ -6,7 +6,8 @@ const abi = require('ethereumjs-abi')
 const artifacts = require('../../../build/contracts/ChannelManager.json')
 
 module.exports = class Ethcalate {
-  constructor (contractAddress, apiUrl) {
+  constructor (web3, contractAddress, apiUrl) {
+    this.web3 = web3
     if (contractAddress) {
       this.contractAddress = contractAddress
     } else {
@@ -20,14 +21,11 @@ module.exports = class Ethcalate {
   }
 
   async initContract () {
-    // init web3
-    const result = await getWeb3
-    this.web3 = result.web3
-
     // init channel manager
     const ChannelManager = contract(artifacts)
     ChannelManager.setProvider(this.web3.currentProvider)
     ChannelManager.defaults({ from: this.web3.eth.accounts[0] })
+    console.log('this.web3.eth.accounts[0]: ', this.web3.eth.accounts[0])
 
     // init instance
     let channelManager
@@ -105,7 +103,7 @@ module.exports = class Ethcalate {
     }
 
     let nonce = 1
-    const latestTransaction = channel.transaction[0]
+    const latestTransaction = channel.transactions[0]
     if (latestTransaction) {
       nonce = latestTransaction.nonce + 1
     }
@@ -216,28 +214,23 @@ module.exports = class Ethcalate {
   }
 
   async getMyChannels () {
+    if (!this.channelManager) {
+      throw new Error('Please call initContract()')
+    }
+
     const response = await axios.get(
       `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
     )
     if (response.data) {
       return response.data.channels.map(channel => {
-        channel.depositA = this.web3.fromWei(channel.depositA, 'ether')
-        channel.depositB = this.web3.fromWei(channel.depositB, 'ether')
-
         // if balances dont exist from stateUpdate, balance = deposit
         const latestTransaction = channel.transactions[0]
-        if (latestTransaction) {
-          channel.balanceA = this.web3.fromWei(
-            latestTransaction.balanceA,
-            'ether'
-          )
-          channel.balanceB = this.web3.fromWei(
-            latestTransaction.balanceB,
-            'ether'
-          )
-        } else {
+        if (!latestTransaction) {
           channel.balanceA = channel.depositA
           channel.balanceB = channel.depositB
+        } else {
+          channel.balanceA = latestTransaction.balanceA
+          channel.balanceB = latestTransaction.balanceB
         }
         return channel
       })
