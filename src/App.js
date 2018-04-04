@@ -2,7 +2,8 @@
 import React, { Component } from 'react'
 import DesktopComponent from './js/components/DesktopComponent'
 
-import Ethcalate from 'ethcalate'
+//import Ethcalate from 'ethcalate'
+import Ethcalate from './ethcalate-client/src/Ethcalate'
 
 class App extends Component {
   state = {

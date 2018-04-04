@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
 import TransactionTable from './TransactionTable'
+import ChallengeButton from './ChallengeButton'
 
 class ChannelAccordion extends Component {
   state = {
-    activeIndex: 0
+    activeIndex: null,
   }
 
   handleRowClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
+    if (!activeIndex) {
+      this.setState({ activeIndex: 0 })
+    }
     const newIndex = activeIndex === index ? -1 : index
 
     this.setState({ activeIndex: newIndex })
@@ -84,32 +88,80 @@ class ChannelAccordion extends Component {
     }
   }
 
-  channelGrid ({ id, agentA, agentB, balanceA, balanceB, latestNonce, status }) {
+  channelTitlePanel ({ id, agentA, agentB, balanceA, balanceB, latestNonce, status }) {
     return (
-      <Grid centered celled>
-        <Grid.Row columns='equal'>
-          <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
+      <Container>
+      <Grid centered>
+        <Grid.Row columns='equal' verticalAlign='middle'>
           <Grid.Column>
-            {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
+            <Header className='h3 centered'>Counterparty</Header>
+            <Header className='centered sub header'>{agentB}</Header>
           </Grid.Column>
           <Grid.Column>
-            {balanceB ? parseFloat(balanceB).toFixed(4) : 0}
+            <Header className='h3 centered'>Balances</Header>
+            <Grid.Row>
+              <Header className='centered sub header'>Mine: {balanceA ? parseFloat(balanceA).toFixed(4) : 0}</Header>
+              <Header className='centered sub header'>Counterparty: {balanceB ? parseFloat(balanceB).toFixed(4) : 0}</Header>
+            </Grid.Row>
           </Grid.Column>
-          <Grid.Column>{status}</Grid.Column>
-          <Grid.Column>{latestNonce}</Grid.Column>
+          <Grid.Column>
+            <Header className='h3 centered'>Status</Header>
+            <Header className='centered sub header'>{status}</Header>
+          </Grid.Column>
+
         </Grid.Row>
       </Grid>
+
+      </Container>
     )
   }
 
-  accordionRow (channel) {
+  channelDetailsPanel (channel) {
+    const { id, agentA, agentB, balanceA, balanceB, latestNonce, status } = channel
+    return (
+      <Container>
+        <Grid centered>
+          <Grid.Row>
+            <Header className='centered h4' style={{marginTop:'1em'}}>Latest Transactions</Header>
+          </Grid.Row>
+          <Grid.Row>
+            <TransactionTable channel={channel} />
+          </Grid.Row>
+        </Grid>
+
+        <Grid centered>
+          <Grid.Row columns='equal'>
+            <Grid.Column>
+
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+
+        {/* <Grid centered celled>
+          <Grid.Row columns='equal'>
+            <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
+            <Grid.Column>
+              {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
+            </Grid.Column>
+            <Grid.Column>
+              {balanceB ? parseFloat(balanceB).toFixed(4) : 0}
+            </Grid.Column>
+            <Grid.Column>{status}</Grid.Column>
+            <Grid.Column>{latestNonce}</Grid.Column>
+          </Grid.Row>
+        </Grid> */}
+      </Container>
+    )
+  }
+
+  accordionRow (channel, index) {
     return (
       <div key={channel.id}>
-        <Accordion.Title active={false} index={0} onClick={this.handleRowClick}>
-          {this.channelGrid(channel)}
+        <Accordion.Title active={this.state.activeIndex === index} index={index} onClick={this.handleRowClick}>
+          {this.channelTitlePanel(channel)}
         </Accordion.Title>
-        <Accordion.Content active={false}>
-          <TransactionTable />
+        <Accordion.Content active={this.state.activeIndex === index}>
+          {this.channelDetailsPanel(channel)}
         </Accordion.Content>
       </div>
     )
@@ -118,7 +170,7 @@ class ChannelAccordion extends Component {
   render () {
     const { activeIndex } = this.state
     const { myChannels } = this.props
-    const channelGrid = this.channelGrid(
+    const channelGrid = this.channelDetailsPanel(
       'Counterparty',
       'Balance',
       'Status',
@@ -142,7 +194,7 @@ class ChannelAccordion extends Component {
 
           <Accordion fluid styled>
             {myChannels.map((channel, index) => {
-              return this.accordionRow(channel)
+              return this.accordionRow(channel, index)
             })}
           </Accordion>
         </Container>

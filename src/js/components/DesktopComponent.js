@@ -81,10 +81,11 @@ class DesktopComponent extends React.Component {
   render () {
     const { ethcalate, myChannels } = this.props
     const { activeChannelIndex } = this.state
-    const hideChannelButton = activeChannelIndex === -1
+    console.log('activeChannelIndex:', activeChannelIndex)
+    const hideChannelButton = (activeChannelIndex === -1 || activeChannelIndex === null)
+    console.log('hideChannelButton:', hideChannelButton)
 
     console.log(myChannels)
-    console.log(myChannels.length !== 0)
 
     return (
       <div>

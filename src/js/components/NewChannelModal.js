@@ -11,7 +11,6 @@ class NewChannelModal extends Component {
     submittedChallengePeriod: null,
     modalOpen: false,
     fieldError: null,
-    fieldWarning: null
   }
 
   async componentWillReceiveProps (nextProps) {}
@@ -63,7 +62,7 @@ class NewChannelModal extends Component {
     })
 
     this.createNewChannel()
-
+    this.handleClose()
   }
 
   render () {
