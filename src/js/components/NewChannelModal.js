@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Modal, Form, Label, Input } from 'semantic-ui-react'
+import { Button, Modal, Form, Label, Input, Message } from 'semantic-ui-react'
 
 class NewChannelModal extends Component {
   state = {
@@ -9,53 +9,61 @@ class NewChannelModal extends Component {
     submittedStake: null,
     submittedParty: null,
     submittedChallengePeriod: null,
-    channelManagerAddress: null
+    modalOpen: false,
+    fieldError: null,
+    fieldWarning: null
   }
 
-  async componentWillReceiveProps (nextProps) {
-    if (nextProps.channelManager) {
-      try {
-        const channelManagerInstance = await nextProps.channelManager.deployed()
-        this.setState({ channelManagerAddress: channelManagerInstance.address })
-      } catch (e) {
-        console.log(e)
-      }
-    }
-  }
+  async componentWillReceiveProps (nextProps) {}
 
-  createNewChannel = async () => {
-    console.log('createNewChannel')
+  async createNewChannel () {
     const { to, challenge, deposit } = this.state
-
     const { ethcalate } = this.props
 
     // create new channel with params
     try {
-      console.log('challenge: ', challenge)
-      console.log(typeof challenge)
       await ethcalate.openChannel({ to, depositInEth: deposit, challenge })
     } catch (e) {
       console.log(e)
     }
   }
 
+  handleOpen = () => { this.setState({ modalOpen: true }) }
+
+  handleClose = () => {
+    // close modal
+    this.setState({ modalOpen: false }) 
+  }
+
   handleChange = e => {
     const target = e.target
     const name = target.name
     const value = target.value
-    this.setState({ [name]: value }, () => {
-      console.log(this.state)
-    })
+    this.setState({ [name]: value })
   }
 
   handleSubmit = () => {
-    const { newCounterparty, challengePeriod, stake } = this.state
+    const { to, challenge, deposit } = this.state
+
+    // must have counterparty entered
+    if (!to) {
+      this.setState({ fieldError: true })
+      return
+    }
+
+    // warning if challenge period is less than 1 hour
+    if (challenge < 3600) {
+      this.setState({ fieldWarning: true })
+    }
+
     this.setState({
-      submittedParty: newCounterparty,
-      submittedChallengePeriod: challengePeriod,
-      submittedStake: stake
+      submittedParty: to,
+      submittedChallengePeriod: challenge,
+      submittedStake: deposit
     })
+
     this.createNewChannel()
+
   }
 
   render () {
@@ -63,13 +71,16 @@ class NewChannelModal extends Component {
       <Modal
         size='small'
         dimmer='inverted'
-        trigger={<Button>Open a New Channel</Button>}
+        open={this.state.modalOpen}
+        onClose={this.handleClose}
+        trigger={<Button onClick={this.handleOpen}>Open a New Channel</Button>}
         style={{ position: 'absolute', top: '50%', left: '20%' }}
       >
         <Modal.Header>Enter Channel Information</Modal.Header>
         <Modal.Content>
-          <Form>
-            <Form.Field>
+          <Form warning={this.state.fieldWarning}>
+
+            <Form.Field error={this.state.fieldError}>
               <Label>Counterparty</Label>
               <Input
                 type='text'
@@ -78,6 +89,7 @@ class NewChannelModal extends Component {
                 onChange={this.handleChange}
               />
             </Form.Field>
+
             <Form.Field>
               <Label>Challenge Period (seconds)</Label>
               <Input
@@ -86,7 +98,13 @@ class NewChannelModal extends Component {
                 name='challenge'
                 onChange={this.handleChange}
               />
+              <Message
+                warning
+                header="Thats a short challenge period!"
+                content='Seems like your challenge period is less than an hour, you sure?'
+              />
             </Form.Field>
+
             <Form.Field>
               <Label>Channel Stake</Label>
               <Input
@@ -96,9 +114,11 @@ class NewChannelModal extends Component {
                 onChange={this.handleChange}
               />
             </Form.Field>
+
             <Button type='submit' onClick={this.handleSubmit}>
               Open
             </Button>
+
           </Form>
         </Modal.Content>
       </Modal>

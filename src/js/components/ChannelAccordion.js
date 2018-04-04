@@ -7,7 +7,7 @@ class ChannelAccordion extends Component {
     activeIndex: 0
   }
 
-  handleClick = (e, titleProps) => {
+  handleRowClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
     const newIndex = activeIndex === index ? -1 : index
@@ -97,37 +97,6 @@ class ChannelAccordion extends Component {
           </Grid.Column>
           <Grid.Column>{status}</Grid.Column>
           <Grid.Column>{latestNonce}</Grid.Column>
-          <Grid.Column>
-            <Button onClick={() => this.handleJoinChannelClick(id)}>
-              Join Channel
-            </Button>
-          </Grid.Column>
-          <Grid.Column>
-            <Button
-              onClick={() =>
-                this.handleUpdateStateClick({
-                  id,
-                  agentA,
-                  agentB,
-                  balanceA,
-                  balanceB,
-                  latestNonce,
-                  status
-                })}
-            >
-              Update State
-            </Button>
-          </Grid.Column>
-          <Grid.Column>
-            <Button onClick={() => this.handleStartChallengeClick(id)}>
-              Start Challenge
-            </Button>
-          </Grid.Column>
-          <Grid.Column>
-            <Button onClick={() => this.handleCloseChannelClick(id)}>
-              Close Channel
-            </Button>
-          </Grid.Column>
         </Grid.Row>
       </Grid>
     )
@@ -136,7 +105,7 @@ class ChannelAccordion extends Component {
   accordionRow (channel) {
     return (
       <div key={channel.id}>
-        <Accordion.Title active={false} index={0} onClick={this.handleClick}>
+        <Accordion.Title active={false} index={0} onClick={this.handleRowClick}>
           {this.channelGrid(channel)}
         </Accordion.Title>
         <Accordion.Content active={false}>
