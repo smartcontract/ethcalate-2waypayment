@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Header, Grid, Button, Menu, Segment } from 'semantic-ui-react'
+import { Menu, Segment, Container, Header, Grid } from 'semantic-ui-react'
 
 import ChannelAccordion from './ChannelAccordion'
 import NewChannelModal from './NewChannelModal'
@@ -40,20 +40,7 @@ const ChannelHeading = () => {
 
 class DesktopComponent extends React.Component {
   state = {
-    activeChannelIndex: null,
-    channelId: null,
     activeMenuItem: null
-  }
-
-  // retrieve the channel manager contract address if set
-  async componentWillReceiveProps (nextProps) {
-    if (nextProps && this.props.ethcalate) {
-      console.log('componentWillRecieveProps()')
-      const { ethcalate, myChannels } = this.props
-      console.log(
-        'ethcalate.channelManager.address: ' + ethcalate.channelManager.address
-      )
-    }
   }
 
   hideChannelButtons = _activeChannelIndex => {
@@ -62,24 +49,9 @@ class DesktopComponent extends React.Component {
     })
   }
 
-  // handleMenuItemClick = (e, titleProps) => {
-  //   const { index } = titleProps
-  //   this.setState({
-  //     activeMenuItem: index
-  //   })
-  // }
-
-  handleMenuItemClick = (e, {name}) => {
-    this.setState({ activeMenuItem: name })
-  }
-
   render () {
     const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex, activeMenuItem } = this.state
-    const hideChannelButton = (activeChannelIndex === -1 || activeChannelIndex === null)
-    console.log(activeMenuItem)
-
-    console.log(myChannels)
+    const { activeMenuItem } = this.state
 
     return (
       <div>
