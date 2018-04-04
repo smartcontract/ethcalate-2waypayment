@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
 
-class ChallengeButton extends Component {
+class JoinChannelButton extends Component {
 
     handleJoinChannelClick () {
         return
@@ -9,10 +9,9 @@ class ChallengeButton extends Component {
 
     render() {
         return (
-            <Button onClick={this.handleJoinChannelClick}>Submit Evidence</Button>
+            <Button onClick={this.handleJoinChannelClick}>Join Channel</Button>
         )
     }
-
 }
 
-export default ChallengeButton
+export default JoinChannelButton

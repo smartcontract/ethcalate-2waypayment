@@ -8,16 +8,6 @@ import UserSettingsModal from './UserSettingsModal'
 const MainHeading = () => (
   <Container text>
       <Header
-        as='h2'
-        content='Take your'
-        style={{
-          fontSize: '1.7em',
-          fontWeight: 'normal',
-          marginBottom: 0,
-          marginTop: '1.5em'
-        }}
-      />
-      <Header
         as='h1'
         content='Money Shot'
         style={{
@@ -90,28 +80,28 @@ class DesktopComponent extends React.Component {
     return (
       <div>
         <Container>
-          <Grid>
+          <Grid centered>
             <Grid.Row verticalAlign='top' style={{marginTop: '1.5em'}}>
               
-              {/* <Grid.Column floated='left'>
+              <Grid.Column textAlign='right'>
                 <UserSettingsModal ethcalate={ethcalate}/>
-              </Grid.Column> */}
+              </Grid.Column>
               
             </Grid.Row>
       
             <Grid.Row>
-              <Grid.Column>
+              <Grid.Column textAlign='center'>
                 <MainHeading />
               </Grid.Column>
             </Grid.Row>
             
             <Grid.Row columns='equal' verticalAlign='middle'>
-              <Grid.Column>
+              <Grid.Column textAlign='center'>
 
                 <NewChannelModal ethcalate={ethcalate} />
 
               </Grid.Column>
-              <Grid.Column>
+              {/* <Grid.Column>
                 
                 <Button
                   disabled={hideChannelButton}
@@ -145,7 +135,9 @@ class DesktopComponent extends React.Component {
 
             </Grid.Row>
           </Grid>
-        </Container>
+        </Container> */}
+           </Grid.Row>
+          </Grid>
 
         <ChannelAccordion
           callbackFromParent={this.hideChannelButtons}
@@ -153,6 +145,8 @@ class DesktopComponent extends React.Component {
           ethcalate={ethcalate}
           visible={myChannels.length !== 0}
         />
+
+        </Container>
 
       </div>
     )

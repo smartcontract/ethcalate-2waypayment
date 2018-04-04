@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
+
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
+import JoinChannelButton from './JoinChannelButton'
+import UpdateStateModal from './UpdateStateModal'
+import CloseChannelButton from './CloseChannelButton'
+
 
 class ChannelAccordion extends Component {
   state = {
@@ -120,6 +125,28 @@ class ChannelAccordion extends Component {
     const { id, agentA, agentB, balanceA, balanceB, latestNonce, status } = channel
     return (
       <Container>
+        <Grid centered columns='equal'>
+          <Grid.Row>
+            
+            <Grid.Column>
+              <UpdateStateModal />
+            </Grid.Column>
+            
+            <Grid.Column>
+              <JoinChannelButton />
+            </Grid.Column>
+            
+            <Grid.Column>
+              <ChallengeButton />
+            </Grid.Column>
+            
+            <Grid.Column>
+              <CloseChannelButton />
+            </Grid.Column>
+          
+          </Grid.Row>
+        </Grid>
+
         <Grid centered>
           <Grid.Row>
             <Header className='centered h4' style={{marginTop:'1em'}}>Latest Transactions</Header>
@@ -150,6 +177,7 @@ class ChannelAccordion extends Component {
             <Grid.Column>{latestNonce}</Grid.Column>
           </Grid.Row>
         </Grid> */}
+
       </Container>
     )
   }
