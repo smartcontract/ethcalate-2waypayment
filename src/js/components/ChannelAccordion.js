@@ -9,7 +9,37 @@ import CloseChannelButton from './CloseChannelButton'
 
 class ChannelAccordion extends Component {
   state = {
-    activeIndex: null
+    activeIndex: null,
+    channelsToDisplay: []
+  }
+
+  getChannelsToDisplay = async (channelType, myChannels) => {
+    const { ethcalate } = this.props.ethcalate
+    switch(channelType) {
+      case 'open':
+
+        break
+      case 'join':
+        break
+      case 'challenge':
+        break
+      case 'closed':
+        break
+      default:
+        break
+
+    }
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    // display only the relevant types of channels in accordion
+    if (nextProps && nextProps !== this.props) {
+      const { channelType, myChannels } = nextProps.type
+      const channelsToDisplay = this.getChannelsToDisplay(channelType, myChannels)
+      this.setState({
+        channelsToDisplay
+      })
+    }
   }
 
   handleRowClick = (e, titleProps) => {
@@ -22,74 +52,6 @@ class ChannelAccordion extends Component {
 
     this.setState({ activeIndex: newIndex })
     this.props.callbackFromParent(newIndex)
-  }
-
-  handleJoinChannelClick = async channelId => {
-    console.log('handleJoinChannelClick with channelId:' + channelId)
-    const { ethcalate } = this.props
-    try {
-      await ethcalate.joinChannel({ channelId, depositInEth: '1' }) // TODO: SET AMOUNT FROM UI
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleUpdateStateClick = async ({
-    id,
-    agentA,
-    agentB,
-    balanceA,
-    balanceB,
-    latestNonce
-  }) => {
-    console.log('handleJoinChannelClick with channelId:' + id)
-    const { ethcalate } = this.props
-
-    console.log(agentA, agentB)
-
-    // detect who is counterparty
-    let isAgentA
-    if (ethcalate.web3.eth.accounts[0] === agentA) {
-      isAgentA = true
-    } else if (ethcalate.web3.eth.accounts[0] === agentB) {
-      isAgentA = false
-    } else {
-      throw new Error('This is not your channel')
-    }
-    console.log('isAgentA: ', isAgentA)
-
-    try {
-      const res = await ethcalate.updateState({
-        channelId: id,
-        nonce: parseInt(latestNonce) + 2,
-        balanceA: ethcalate.web3.toWei(0.5, 'ether'),
-        balanceB: ethcalate.web3.toWei(1.5, 'ether'),
-        isAgentA
-      })
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleStartChallengeClick = async channelId => {
-    const { ethcalate } = this.props
-    try {
-      const res = await ethcalate.startChallengePeriod(channelId)
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleCloseChannelClick = async channelId => {
-    const { ethcalate } = this.props
-    try {
-      const res = await ethcalate.closeChannel(channelId)
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
   }
 
   channelTitlePanel ({
@@ -216,21 +178,6 @@ class ChannelAccordion extends Component {
             <Grid.Column />
           </Grid.Row>
         </Grid>
-
-        {/* <Grid centered celled>
-          <Grid.Row columns='equal'>
-            <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
-            <Grid.Column>
-              {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
-            </Grid.Column>
-            <Grid.Column>
-              {balanceB ? parseFloat(balanceB).toFixed(4) : 0}
-            </Grid.Column>
-            <Grid.Column>{status}</Grid.Column>
-            <Grid.Column>{latestNonce}</Grid.Column>
-          </Grid.Row>
-        </Grid> */}
-
       </Container>
     )
   }
@@ -253,35 +200,25 @@ class ChannelAccordion extends Component {
   }
 
   render () {
-    const { activeIndex } = this.state
-    const { myChannels } = this.props
+    const { activeIndex, channelsToDisplay } = this.state
+    const { myChannels, channelType } = this.props
     const channelGrid = this.channelDetailsPanel(
       'Counterparty',
       'Balance',
       'Status',
       'Nonce'
     )
+    console.log('myChannels:', myChannels)
+    console.log('channelsToDisplay:', channelsToDisplay)
 
     return (
       <div>
         <Container>
-          <Header
-            as='h3'
-            textAlign='center'
-            content='Your Channels'
-            style={{
-              fontSize: '1.5em',
-              fontWeight: 'normal',
-              marginBottom: '1em',
-              marginTop: '2em'
-            }}
-          />
-
-          <Accordion fluid styled>
+          {/* <Accordion fluid styled>
             {myChannels.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
-          </Accordion>
+          </Accordion> */}
           
         </Container>
       </div>

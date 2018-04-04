@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Header, Grid, Button, Menu } from 'semantic-ui-react'
+import { Container, Header, Grid, Button, Menu, Segment } from 'semantic-ui-react'
 
 import ChannelAccordion from './ChannelAccordion'
 import NewChannelModal from './NewChannelModal'
@@ -20,10 +20,29 @@ const MainHeading = () => (
   </Container>
 )
 
+const ChannelHeading = () => {
+  return (
+    <Container>
+      <Header
+        as='h3'
+        textAlign='center'
+        content='Your Channels'
+        style={{
+          fontSize: '1.5em',
+          fontWeight: 'normal',
+          marginBottom: '1em',
+          marginTop: '2em'
+        }}
+      />
+    </Container>
+  )
+}
+
 class DesktopComponent extends React.Component {
   state = {
     activeChannelIndex: null,
-    channelId: null
+    channelId: null,
+    activeMenuItem: null
   }
 
   // retrieve the channel manager contract address if set
@@ -35,15 +54,6 @@ class DesktopComponent extends React.Component {
         'ethcalate.channelManager.address: ' + ethcalate.channelManager.address
       )
     }
-    // const { ethcalate, myChannels } = this.props
-    // if (nextProps.channelManager) {
-    //   try {
-    //     const channelManagerInstance = await nextProps.channelManager.deployed()
-    //     this.setState({ channelManagerAddress: channelManagerInstance.address })
-    //   } catch (e) {
-    //     console.log(e)
-    //   }
-    // }
   }
 
   hideChannelButtons = _activeChannelIndex => {
@@ -52,35 +62,22 @@ class DesktopComponent extends React.Component {
     })
   }
 
-  closeChannel = async () => {
-    // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
-    const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
+  // handleMenuItemClick = (e, titleProps) => {
+  //   const { index } = titleProps
+  //   this.setState({
+  //     activeMenuItem: index
+  //   })
+  // }
 
-    // get contract instance
-    await ethcalate.closeChannel()
-  }
-
-  issueChallenge = async () => {
-    const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
-  }
-
-  handleMenuItemClick = (menuItem) => {
-    return
+  handleMenuItemClick = (e, {name}) => {
+    this.setState({ activeMenuItem: name })
   }
 
   render () {
     const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
-<<<<<<< HEAD
+    const { activeChannelIndex, activeMenuItem } = this.state
     const hideChannelButton = (activeChannelIndex === -1 || activeChannelIndex === null)
-=======
-    console.log('activeChannelIndex:', activeChannelIndex)
-    const hideChannelButton =
-      activeChannelIndex === -1 || activeChannelIndex === null
-    console.log('hideChannelButton:', hideChannelButton)
->>>>>>> afc0769b79084038064af47703828c29edafd9dc
+    console.log(activeMenuItem)
 
     console.log(myChannels)
 
@@ -105,88 +102,37 @@ class DesktopComponent extends React.Component {
             <Grid.Row columns='equal' verticalAlign='middle'>
               <Grid.Column textAlign='center'>
                 <NewChannelModal ethcalate={ethcalate} />
-<<<<<<< HEAD
-=======
 
               </Grid.Column>
-              {/* <Grid.Column>
-
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.closeChannel}
-                >
-                  Close Selected Channel
-                </Button>
-
-              </Grid.Column>
-              <Grid.Column>
-
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.issueChallenge}
-                >
-                  Issue Channel Challenge
-                </Button>
-
->>>>>>> afc0769b79084038064af47703828c29edafd9dc
-              </Grid.Column>
-           </Grid.Row>
-
-<<<<<<< HEAD
+            </Grid.Row>
           </Grid>
+
           <Grid>
             <Grid.Row>
-              <Menu className='three item pointing top attached menu'>
-                <Menu.Item active className='link' onClick={this.handleMenuItemClick('Open')}>Open</Menu.Item>
-                <Menu.Item className='link' onClick={this.handleMenuItemClick('Action Needed')}>Action Needed</Menu.Item>
-                <Menu.Item className='link' onClick={this.handleMenuItemClick('Closed')}>Closed</Menu.Item>
-              </Menu>
+              <ChannelHeading />
             </Grid.Row>
-=======
-              <Grid.Column >
-
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.joinChannel}
-                >
-                  Join Selected Channel
-                </Button>
-
-              </Grid.Column>
->>>>>>> afc0769b79084038064af47703828c29edafd9dc
 
             <Grid.Row>
-              <Menu active className='bottom attached segment'>
-                Test
+              <Menu className='three item pointing top attached menu'>
+                <Menu.Item active={activeMenuItem === 'open'} name='open' className='link' onClick={this.handleMenuItemClick}>Open</Menu.Item>
+                <Menu.Item active={activeMenuItem === 'action'} name='action' className='link' onClick={this.handleMenuItemClick}>Action Needed</Menu.Item>
+                <Menu.Item active={activeMenuItem === 'closed'} name='closed' className='link' onClick={this.handleMenuItemClick}>Closed</Menu.Item>
               </Menu>
-            
+
+              <Segment attached='bottom'>
+                <ChannelAccordion
+                  callbackFromParent={this.hideChannelButtons}
+                  myChannels={this.getmyChannels}
+                  ethcalate={ethcalate}
+                  visible={myChannels.length !== 0}
+                  type={activeMenuItem}
+                />
+              </Segment>
+              
             </Grid.Row>
-<<<<<<< HEAD
 
           </Grid>
-        {/* <ChannelAccordion
-          callbackFromParent={this.hideChannelButtons}
-          myChannels={myChannels}
-          ethcalate={ethcalate}
-          visible={myChannels.length !== 0}
-        /> */}
-=======
-          </Grid>
-        </Container> */}
-            </Grid.Row>
-          </Grid>
-
-          <ChannelAccordion
-            callbackFromParent={this.hideChannelButtons}
-            myChannels={myChannels}
-            ethcalate={ethcalate}
-            visible={myChannels.length !== 0}
-          />
->>>>>>> afc0769b79084038064af47703828c29edafd9dc
-
         </Container>
-
-
       </div>
     )
   }
