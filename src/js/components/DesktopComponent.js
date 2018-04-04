@@ -7,16 +7,16 @@ import UserSettingsModal from './UserSettingsModal'
 
 const MainHeading = () => (
   <Container text>
-      <Header
-        as='h1'
-        content='Money Shot'
-        style={{
-          fontSize: '4em',
-          fontWeight: 'normal',
-          marginBottom: '1em',
-          marginTop: 0
-        }}
-      />
+    <Header
+      as='h1'
+      content='Money Shot'
+      style={{
+        fontSize: '4em',
+        fontWeight: 'normal',
+        marginBottom: '1em',
+        marginTop: 0
+      }}
+    />
   </Container>
 )
 
@@ -31,7 +31,9 @@ class DesktopComponent extends React.Component {
     if (nextProps && this.props.ethcalate) {
       console.log('componentWillRecieveProps()')
       const { ethcalate, myChannels } = this.props
-      console.log('ethcalate.channelManager.address: ' + ethcalate.channelManager.address)
+      console.log(
+        'ethcalate.channelManager.address: ' + ethcalate.channelManager.address
+      )
     }
     // const { ethcalate, myChannels } = this.props
     // if (nextProps.channelManager) {
@@ -44,13 +46,11 @@ class DesktopComponent extends React.Component {
     // }
   }
 
-
   hideChannelButtons = _activeChannelIndex => {
     this.setState({
       activeChannelIndex: _activeChannelIndex
     })
   }
-
 
   closeChannel = async () => {
     // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
@@ -64,15 +64,14 @@ class DesktopComponent extends React.Component {
   issueChallenge = async () => {
     const { ethcalate, myChannels } = this.props
     const { activeChannelIndex } = this.state
-
-
   }
 
   render () {
     const { ethcalate, myChannels } = this.props
     const { activeChannelIndex } = this.state
     console.log('activeChannelIndex:', activeChannelIndex)
-    const hideChannelButton = (activeChannelIndex === -1 || activeChannelIndex === null)
+    const hideChannelButton =
+      activeChannelIndex === -1 || activeChannelIndex === null
     console.log('hideChannelButton:', hideChannelButton)
 
     console.log(myChannels)
@@ -81,20 +80,20 @@ class DesktopComponent extends React.Component {
       <div>
         <Container>
           <Grid centered>
-            <Grid.Row verticalAlign='top' style={{marginTop: '1.5em'}}>
-              
+            <Grid.Row verticalAlign='top' style={{ marginTop: '1.5em' }}>
+
               <Grid.Column textAlign='right'>
-                <UserSettingsModal ethcalate={ethcalate}/>
+                <UserSettingsModal ethcalate={ethcalate} />
               </Grid.Column>
-              
+
             </Grid.Row>
-      
+
             <Grid.Row>
               <Grid.Column textAlign='center'>
                 <MainHeading />
               </Grid.Column>
             </Grid.Row>
-            
+
             <Grid.Row columns='equal' verticalAlign='middle'>
               <Grid.Column textAlign='center'>
 
@@ -102,7 +101,7 @@ class DesktopComponent extends React.Component {
 
               </Grid.Column>
               {/* <Grid.Column>
-                
+
                 <Button
                   disabled={hideChannelButton}
                   onClick={this.closeChannel}
@@ -112,39 +111,39 @@ class DesktopComponent extends React.Component {
 
               </Grid.Column>
               <Grid.Column>
-                
+
                 <Button
                   disabled={hideChannelButton}
                   onClick={this.issueChallenge}
                 >
                   Issue Channel Challenge
                 </Button>
-                
+
               </Grid.Column>
 
               <Grid.Column >
-                
+
                 <Button
                   disabled={hideChannelButton}
                   onClick={this.joinChannel}
                 >
                   Join Selected Channel
                 </Button>
-                
+
               </Grid.Column>
 
             </Grid.Row>
           </Grid>
         </Container> */}
-           </Grid.Row>
+            </Grid.Row>
           </Grid>
 
-        <ChannelAccordion
-          callbackFromParent={this.hideChannelButtons}
-          myChannels={myChannels}
-          ethcalate={ethcalate}
-          visible={myChannels.length !== 0}
-        />
+          <ChannelAccordion
+            callbackFromParent={this.hideChannelButtons}
+            myChannels={myChannels}
+            ethcalate={ethcalate}
+            visible={myChannels.length !== 0}
+          />
 
         </Container>
 
