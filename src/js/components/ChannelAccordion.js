@@ -107,14 +107,23 @@ class ChannelAccordion extends Component {
     let counterparty
     let myBalance
     let counterpartyBalance
+    // format balances
     if (agentA === ethcalate.web3.eth.accounts[0]) {
       counterparty = agentB
-      myBalance = balanceA ? parseFloat(balanceA).toFixed(4) : 0
-      counterpartyBalance = balanceB ? parseFloat(balanceB).toFixed(4) : 0
+      myBalance = balanceA
+        ? parseFloat(ethcalate.web3.fromWei(balanceA, 'ether')).toFixed(4)
+        : 0
+      counterpartyBalance = balanceB
+        ? parseFloat(ethcalate.web3.fromWei(balanceB, 'ether')).toFixed(4)
+        : 0
     } else if (agentB === ethcalate.web3.eth.accounts[0]) {
       counterparty = agentA
-      myBalance = balanceB ? parseFloat(balanceB).toFixed(4) : 0
-      counterpartyBalance = balanceA ? parseFloat(balanceA).toFixed(4) : 0
+      myBalance = balanceB
+        ? parseFloat(ethcalate.web3.fromWei(balanceB, 'ether')).toFixed(4)
+        : 0
+      counterpartyBalance = balanceA
+        ? parseFloat(ethcalate.web3.fromWei(balanceA, 'ether')).toFixed(4)
+        : 0
     }
 
     return (
@@ -171,7 +180,7 @@ class ChannelAccordion extends Component {
           <Grid.Row>
 
             <Grid.Column>
-              <UpdateStateModal />
+              <UpdateStateModal channel={channel} ethcalate={ethcalate} />
             </Grid.Column>
 
             <Grid.Column>

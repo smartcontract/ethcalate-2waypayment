@@ -103,7 +103,7 @@ module.exports = class Ethcalate {
     }
 
     let nonce = 1
-    const latestTransaction = channel.transaction[0]
+    const latestTransaction = channel.transactions[0]
     if (latestTransaction) {
       nonce = latestTransaction.nonce + 1
     }
@@ -218,32 +218,19 @@ module.exports = class Ethcalate {
       throw new Error('Please call initContract()')
     }
 
-    console.log(
-      '`${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`: ',
-      `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
-    )
     const response = await axios.get(
       `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
     )
     if (response.data) {
       return response.data.channels.map(channel => {
-        channel.depositA = this.web3.fromWei(channel.depositA, 'ether')
-        channel.depositB = this.web3.fromWei(channel.depositB, 'ether')
-
         // if balances dont exist from stateUpdate, balance = deposit
         const latestTransaction = channel.transactions[0]
-        if (latestTransaction) {
-          channel.balanceA = this.web3.fromWei(
-            latestTransaction.balanceA,
-            'ether'
-          )
-          channel.balanceB = this.web3.fromWei(
-            latestTransaction.balanceB,
-            'ether'
-          )
-        } else {
+        if (!latestTransaction) {
           channel.balanceA = channel.depositA
           channel.balanceB = channel.depositB
+        } else {
+          channel.balanceA = latestTransaction.balanceA
+          channel.balanceB = latestTransaction.balanceB
         }
         return channel
       })
