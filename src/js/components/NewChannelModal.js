@@ -18,10 +18,10 @@ class NewChannelModal extends Component {
   async createNewChannel () {
     const { to, challenge, deposit } = this.state
     const { ethcalate } = this.props
-
+    const depositInWei = ethcalate.web3.toWei(deposit, "ether");
     // create new channel with params
     try {
-      await ethcalate.openChannel({ to, depositInEth: deposit, challenge })
+      await ethcalate.openChannel({ to, depositInWei, challenge })
     } catch (e) {
       console.log(e)
     }
