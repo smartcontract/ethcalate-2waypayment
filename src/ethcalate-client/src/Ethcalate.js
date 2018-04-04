@@ -6,7 +6,8 @@ const abi = require('ethereumjs-abi')
 const artifacts = require('../../../build/contracts/ChannelManager.json')
 
 module.exports = class Ethcalate {
-  constructor (contractAddress, apiUrl) {
+  constructor (web3, contractAddress, apiUrl) {
+    this.web3 = web3
     if (contractAddress) {
       this.contractAddress = contractAddress
     } else {
@@ -20,14 +21,11 @@ module.exports = class Ethcalate {
   }
 
   async initContract () {
-    // init web3
-    const result = await getWeb3
-    this.web3 = result.web3
-
     // init channel manager
     const ChannelManager = contract(artifacts)
     ChannelManager.setProvider(this.web3.currentProvider)
     ChannelManager.defaults({ from: this.web3.eth.accounts[0] })
+    console.log('this.web3.eth.accounts[0]: ', this.web3.eth.accounts[0])
 
     // init instance
     let channelManager
@@ -216,6 +214,14 @@ module.exports = class Ethcalate {
   }
 
   async getMyChannels () {
+    if (!this.channelManager) {
+      throw new Error('Please call initContract()')
+    }
+
+    console.log(
+      '`${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`: ',
+      `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
+    )
     const response = await axios.get(
       `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
     )
