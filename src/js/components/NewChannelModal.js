@@ -20,19 +20,23 @@ class NewChannelModal extends Component {
     const { to, challenge, deposit } = this.state
     const { ethcalate } = this.props
 
+    const depositInWei = ethcalate.web3.toWei(deposit, 'ether')
+    console.log('to, challenge, deposit: ', to, challenge, deposit)
     // create new channel with params
     try {
-      await ethcalate.openChannel({ to, depositInEth: deposit, challenge })
+      await ethcalate.openChannel({ to, depositInWei, challenge })
     } catch (e) {
       console.log(e)
     }
   }
 
-  handleOpen = () => { this.setState({ modalOpen: true }) }
+  handleOpen = () => {
+    this.setState({ modalOpen: true })
+  }
 
   handleClose = () => {
     // close modal
-    this.setState({ modalOpen: false }) 
+    this.setState({ modalOpen: false })
   }
 
   handleChange = e => {
@@ -43,7 +47,7 @@ class NewChannelModal extends Component {
   }
 
   handleSubmit = () => {
-    const { to, challenge, deposit } = this.state
+    const { to, challenge } = this.state
 
     // must have counterparty entered
     if (!to) {
@@ -56,14 +60,7 @@ class NewChannelModal extends Component {
       this.setState({ fieldWarning: true })
     }
 
-    this.setState({
-      submittedParty: to,
-      submittedChallengePeriod: challenge,
-      submittedStake: deposit
-    })
-
     this.createNewChannel()
-
   }
 
   render () {
@@ -100,7 +97,7 @@ class NewChannelModal extends Component {
               />
               <Message
                 warning
-                header="Thats a short challenge period!"
+                header='Thats a short challenge period!'
                 content='Seems like your challenge period is less than an hour, you sure?'
               />
             </Form.Field>
