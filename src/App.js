@@ -1,4 +1,3 @@
-/* globals state */
 import React, { Component } from 'react'
 import DesktopComponent from './js/components/DesktopComponent'
 
@@ -25,7 +24,7 @@ class App extends Component {
   async instantiateContract (web3) {
     const ethcalate = new Ethcalate(
       web3,
-      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+      '0x75c35c980c0d37ef46df04d31a140b65503c0eed',
       'http://localhost:3000'
     )
 

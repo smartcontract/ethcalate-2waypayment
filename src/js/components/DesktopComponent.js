@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Header, Grid, Button } from 'semantic-ui-react'
+import { Container, Header, Grid } from 'semantic-ui-react'
 
 import ChannelAccordion from './ChannelAccordion'
 import NewChannelModal from './NewChannelModal'
@@ -32,23 +32,8 @@ class DesktopComponent extends React.Component {
     })
   }
 
-  closeChannel = async () => {
-    // closeChannel(bytes32[4] h, uint8 v, uint256 value, uint256 nonce)
-    const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
-
-    // get contract instance
-    await ethcalate.closeChannel()
-  }
-
-  issueChallenge = async () => {
-    const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
-  }
-
   render () {
     const { ethcalate, myChannels } = this.props
-    const { activeChannelIndex } = this.state
 
     return (
       <div>
