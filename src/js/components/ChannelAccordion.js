@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
+import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
@@ -225,6 +225,7 @@ class ChannelAccordion extends Component {
               return this.accordionRow(channel, index)
             })}
           </Accordion>
+          
         </Container>
       </div>
     )

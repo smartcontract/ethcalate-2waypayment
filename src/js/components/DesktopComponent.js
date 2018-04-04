@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Header, Grid, Button } from 'semantic-ui-react'
+import { Container, Header, Grid, Button, Menu } from 'semantic-ui-react'
 
 import ChannelAccordion from './ChannelAccordion'
 import NewChannelModal from './NewChannelModal'
@@ -68,12 +68,14 @@ class DesktopComponent extends React.Component {
 
   }
 
+  handleMenuItemClick = (menuItem) => {
+    return
+  }
+
   render () {
     const { ethcalate, myChannels } = this.props
     const { activeChannelIndex } = this.state
-    console.log('activeChannelIndex:', activeChannelIndex)
     const hideChannelButton = (activeChannelIndex === -1 || activeChannelIndex === null)
-    console.log('hideChannelButton:', hideChannelButton)
 
     console.log(myChannels)
 
@@ -97,56 +99,37 @@ class DesktopComponent extends React.Component {
             
             <Grid.Row columns='equal' verticalAlign='middle'>
               <Grid.Column textAlign='center'>
-
                 <NewChannelModal ethcalate={ethcalate} />
-
               </Grid.Column>
-              {/* <Grid.Column>
-                
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.closeChannel}
-                >
-                  Close Selected Channel
-                </Button>
-
-              </Grid.Column>
-              <Grid.Column>
-                
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.issueChallenge}
-                >
-                  Issue Channel Challenge
-                </Button>
-                
-              </Grid.Column>
-
-              <Grid.Column >
-                
-                <Button
-                  disabled={hideChannelButton}
-                  onClick={this.joinChannel}
-                >
-                  Join Selected Channel
-                </Button>
-                
-              </Grid.Column>
-
-            </Grid.Row>
-          </Grid>
-        </Container> */}
            </Grid.Row>
-          </Grid>
 
-        <ChannelAccordion
+          </Grid>
+          <Grid>
+            <Grid.Row>
+              <Menu className='three item pointing top attached menu'>
+                <Menu.Item active className='link' onClick={this.handleMenuItemClick('Open')}>Open</Menu.Item>
+                <Menu.Item className='link' onClick={this.handleMenuItemClick('Action Needed')}>Action Needed</Menu.Item>
+                <Menu.Item className='link' onClick={this.handleMenuItemClick('Closed')}>Closed</Menu.Item>
+              </Menu>
+            </Grid.Row>
+
+            <Grid.Row>
+              <Menu active className='bottom attached segment'>
+                Test
+              </Menu>
+            
+            </Grid.Row>
+
+          </Grid>
+        {/* <ChannelAccordion
           callbackFromParent={this.hideChannelButtons}
           myChannels={myChannels}
           ethcalate={ethcalate}
           visible={myChannels.length !== 0}
-        />
+        /> */}
 
         </Container>
+
 
       </div>
     )

@@ -35,7 +35,7 @@ class UserSettingsModal extends Component {
           >
             <Modal.Header>Settings</Modal.Header>
             <Modal.Content>
-              <Label>{this.getPhoneNumber()}</Label>
+              <Label>Insert Phone Number Here</Label>
             </Modal.Content>
           </Modal>
         )

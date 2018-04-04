@@ -21,7 +21,8 @@ class NewChannelModal extends Component {
 
     // create new channel with params
     try {
-      await ethcalate.openChannel({ to, depositInEth: deposit, challenge })
+      let depositInWei = deposit * 1000000000000000000
+      await ethcalate.openChannel({ to, depositInWei: depositInWei, challenge })
     } catch (e) {
       console.log(e)
     }
