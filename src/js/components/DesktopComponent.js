@@ -26,26 +26,6 @@ class DesktopComponent extends React.Component {
     channelId: null
   }
 
-  // retrieve the channel manager contract address if set
-  async componentWillReceiveProps (nextProps) {
-    if (nextProps && this.props.ethcalate) {
-      console.log('componentWillRecieveProps()')
-      const { ethcalate, myChannels } = this.props
-      console.log(
-        'ethcalate.channelManager.address: ' + ethcalate.channelManager.address
-      )
-    }
-    // const { ethcalate, myChannels } = this.props
-    // if (nextProps.channelManager) {
-    //   try {
-    //     const channelManagerInstance = await nextProps.channelManager.deployed()
-    //     this.setState({ channelManagerAddress: channelManagerInstance.address })
-    //   } catch (e) {
-    //     console.log(e)
-    //   }
-    // }
-  }
-
   hideChannelButtons = _activeChannelIndex => {
     this.setState({
       activeChannelIndex: _activeChannelIndex
@@ -69,12 +49,6 @@ class DesktopComponent extends React.Component {
   render () {
     const { ethcalate, myChannels } = this.props
     const { activeChannelIndex } = this.state
-    console.log('activeChannelIndex:', activeChannelIndex)
-    const hideChannelButton =
-      activeChannelIndex === -1 || activeChannelIndex === null
-    console.log('hideChannelButton:', hideChannelButton)
-
-    console.log(myChannels)
 
     return (
       <div>
