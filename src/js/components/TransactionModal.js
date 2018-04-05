@@ -18,7 +18,6 @@ class TransactionModal extends Component {
         : 0
       return t
     })
-    console.log('transactions: ', transactions)
     this.setState({ transactions })
   }
 
