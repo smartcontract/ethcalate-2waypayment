@@ -14,14 +14,14 @@ class ChannelAccordion extends Component {
     channelsToDisplay: []
   }
 
-  getChannelsToDisplay = (type) => {
+  getChannelsToDisplay = (channelType) => {
     const { myChannels } = this.props
     let channelsToDisplay = []
-    switch (type) {
+    switch (channelType) {
       case 'open':
         for (let i = 0; i < myChannels.length; i++) {
           const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
-          if (myChannels[i].status === 'open' && !isJoin) {
+          if (myChannels[i].status === 'open' && isJoin === false) {
             channelsToDisplay.push(myChannels[i])
           }
         }
@@ -29,14 +29,14 @@ class ChannelAccordion extends Component {
       case 'join':
         for (let i = 0; i < myChannels.length; i++) {
           const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
-          if (myChannels[i].status === 'open' && isJoin) {
+          if (myChannels[i].status === 'open' && isJoin === true) {
             channelsToDisplay.push(myChannels[i])
           }
         }
         break
       default:
         for (let i = 0; i < myChannels.length; i++) {
-          if (myChannels[i].status === type) {
+          if (myChannels[i].status === channelType) {
             channelsToDisplay.push(myChannels[i])
           }
         }
@@ -46,7 +46,7 @@ class ChannelAccordion extends Component {
   }
 
   componentWillMount = async () => {
-    const { ethcalate, myChannels, channelType } = this.props
+    const { ethcalate, channelType } = this.props
     if (ethcalate) {
       this.getChannelsToDisplay(channelType)
     }
@@ -144,39 +144,38 @@ class ChannelAccordion extends Component {
   }
 
   channelDetailsPanel (channel) {
-    const { ethcalate, type } = this.props
+    const { ethcalate, channelType } = this.props
     const { id, agentB, balanceB } = channel
 
     return (
       <Container>
         <Grid>
           <Grid.Row centered columns='equal'>
-
-            {(type === 'open')
+            {(channelType === 'open')
               ? <Grid.Column textAlign='center'>
                 <UpdateStateModal channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(type === 'join')
+            {(channelType === 'join')
               ? <Grid.Column textAlign='center'>
                 <JoinChannelModal channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(type === 'challenge')
+            {(channelType === 'challenge')
               ? <Grid.Column textAlign='center'>
                 <ChallengeButton />
               </Grid.Column>
               : <div />}
 
-            {(type === 'open')
+            {(channelType === 'open')
               ? <Grid.Column textAlign='center'>
                 <CloseChannelButton channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(type === 'closed')
+            {(channelType === 'closed')
               ? <Grid.Column textAlign='center'>
                 <WithdrawFundsButton channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
@@ -213,8 +212,7 @@ class ChannelAccordion extends Component {
 
   render () {
     const { channelsToDisplay } = this.state
-    const { myChannels, channelType } = this.props
-
+    
     return (
       <div>
         <Container>
