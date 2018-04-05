@@ -12,6 +12,7 @@ class App extends Component {
   }
 
   async componentDidMount () {
+    
     try {
       const results = await getWeb3
       await this.instantiateContract(results.web3)
@@ -24,12 +25,12 @@ class App extends Component {
   async instantiateContract (web3) {
     const ethcalate = new Ethcalate(
       web3,
-      '0x75c35c980c0d37ef46df04d31a140b65503c0eed',
+      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
       'http://localhost:3000'
     )
 
     await ethcalate.initContract()
-    console.log('ethcalate.account:', ethcalate.web3.eth.accounts[0])
+    console.log('ethcalate.web3.eth.accounts[0]:', ethcalate.web3.eth.accounts[0])
 
     this.setState({
       ethcalate

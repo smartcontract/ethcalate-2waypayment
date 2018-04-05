@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
+<<<<<<< HEAD
+import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
+=======
 import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
@@ -10,7 +14,28 @@ import WithdrawFundsButton from './WithdrawFundsButton'
 
 class ChannelAccordion extends Component {
   state = {
-    activeIndex: null
+    activeIndex: null,
+    channelsToDisplay: []
+  }
+
+  getChannelsToDisplay = (type, myChannels) => {
+    // filter channels based on channel type arg
+
+    // update the channelsToDisplay state variable
+    this.setState({
+      channelsToDisplay: myChannels
+    })
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    // display only the relevant types of channels in accordion
+    if (!nextProps)
+      return
+    
+    if (nextProps !== this.props) {
+      const { type, myChannels } = nextProps
+      this.getChannelsToDisplay(type, myChannels)
+    }
   }
 
   handleRowClick = (e, titleProps) => {
@@ -94,7 +119,7 @@ class ChannelAccordion extends Component {
     const { ethcalate } = this.props
     const { id, agentB, balanceB, status } = channel
 
-    let allowJoin = false
+    let allowJoin = true
     if (ethcalate && ethcalate.web3) {
       allowJoin =
         agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
@@ -148,6 +173,15 @@ class ChannelAccordion extends Component {
             <TransactionTable channel={channel} />
           </Grid.Row>
         </Grid>
+<<<<<<< HEAD
+
+        <Grid centered>
+          <Grid.Row columns='equal'>
+            <Grid.Column />
+          </Grid.Row>
+        </Grid>
+=======
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
       </Container>
     )
   }
@@ -170,28 +204,26 @@ class ChannelAccordion extends Component {
   }
 
   render () {
+<<<<<<< HEAD
+    const { activeIndex, channelsToDisplay } = this.state
+    const { myChannels, channelType } = this.props
+
+    // console.log('myChannels:', myChannels)
+    // console.log('channelsToDisplay:', channelsToDisplay)
+=======
     const { myChannels } = this.props
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
     return (
       <div>
         <Container>
-          <Header
-            as='h3'
-            textAlign='center'
-            content='Your Channels'
-            style={{
-              fontSize: '1.5em',
-              fontWeight: 'normal',
-              marginBottom: '1em',
-              marginTop: '2em'
-            }}
-          />
-
+          
           <Accordion fluid styled>
-            {myChannels.map((channel, index) => {
+            {channelsToDisplay.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
           </Accordion>
+          
         </Container>
       </div>
     )
