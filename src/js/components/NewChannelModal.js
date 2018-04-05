@@ -10,7 +10,8 @@ class NewChannelModal extends Component {
     submittedParty: null,
     submittedChallengePeriod: null,
     modalOpen: false,
-    fieldError: null
+    fieldError: null,
+    fieldWarning: null
   }
 
   async componentWillReceiveProps (nextProps) {}

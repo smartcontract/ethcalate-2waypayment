@@ -200,9 +200,18 @@ module.exports = class Ethcalate {
 
   async updatePhone (phone) {
     check.assert.string(phone, 'No phone number provided')
-    const response = await axios.post(`${this.apiUrl}/updatePhone`, {
+    const response = await axios.post(`${this.apiUrl}/phone`, {
       address: this.web3.eth.accounts[0],
       phone: phone
+    })
+    return response.data
+  }
+
+  async updateName (name) {
+    check.assert.string(name, 'No name provided')
+    const response = await axios.post(`${this.apiUrl}/name`, {
+      address: this.web3.eth.accounts[0],
+      name: name
     })
     return response.data
   }
@@ -237,6 +246,14 @@ module.exports = class Ethcalate {
     } else {
       return []
     }
+  }
+
+  async getMyDetails () {
+    const account = this.web3.eth.accounts[0]
+    const response = await axios.get(
+      `${this.apiUrl}/user/address/${account}`
+    )
+    return response.data
   }
 
   async getChannelByAddresses (agentA, agentB) {

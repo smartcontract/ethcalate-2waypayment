@@ -6,26 +6,68 @@ import {
   Label,
   Input,
   Icon,
-  Container
+  Container,
+  Form
 } from 'semantic-ui-react'
 
 class UserSettingsModal extends Component {
   state = {
-    phoneNumber: null
+    name: null,
+    address: null,
+    phoneNumber: null,
+    modalOpen: false
   }
 
-  getPhoneNumber () {
-    console.log('getPhoneNumber()')
+  async getDetails() {
     const { ethcalate } = this.props
 
     if (ethcalate) {
-      console.log(ethcalate.web3.eth.accounts[0])
-      // await ethcalate.updatePhone('4082396181')
+      let response = await ethcalate.getMyDetails()
+      this.setState({ 
+        name: response.user.name,
+        address: ethcalate.web3.eth.accounts[0],
+        phoneNumber: response.user.number
+      })
+    }
+    return
+  }
+
+  async updateDetails(name, phoneNumber) {
+    const { ethcalate } = this.props
+    if (ethcalate) {
+      try {
+        await ethcalate.updateName(name)
+        if (phoneNumber) {await ethcalate.updatePhone(phoneNumber)}
+      } catch (e) {
+        return e;
+      }
+      return
+    }
+  }
+
+  handleOpen = () => {
+    this.getDetails()
+    this.setState({ modalOpen: true })
+  }
+
+  handleClose = () => {
+    // close modal
+    this.setState({ modalOpen: false })
+  }
+
+  handleSubmit = async () => {
+    const { name, phoneNumber } = this.state
+    let response = await this.updateDetails(name, phoneNumber)
+    if (response) {
+      console.log({response})
+    } else {
+      this.setState({
+        name,
+        phoneNumber
+      })
     }
 
-    // const account = ethcalate.web3.eth.accounts[0]
-    // return account
-    return '1234'
+    this.handleClose()
   }
 
   render () {
@@ -33,17 +75,43 @@ class UserSettingsModal extends Component {
       <Modal
         size='small'
         dimmer='inverted'
+        open={this.state.modalOpen}
+        onClose={this.handleClose}
         trigger={
-          <Label>
+          <Button onClick={this.handleOpen}>
             <Icon className='cogs' />
             Settings
-          </Label>
-        }
-        style={{ position: 'absolute', top: '50%', left: '20%' }}
+          </Button>}
+        style={{ position: 'absolute', top: '90%', right: '20%' }}
       >
         <Modal.Header>Settings</Modal.Header>
         <Modal.Content>
-          <Label>{this.getPhoneNumber()}</Label>
+          <Label>{this.state.address}</Label>
+          <Label>{this.state.name}</Label>
+          <Label>{this.state.phoneNumber}</Label>
+          <Form>
+            <Form.Field>
+              <Label>Update Nickname</Label>
+              <Input
+                type='text'
+                placeholder='Pick a unique nickname'
+                name='name'
+              />
+            </Form.Field>
+
+            <Form.Field>
+              <Label>Phone number</Label>
+              <Input
+                type='text'
+                placeholder='(000)000-0000'
+                name='phoneNumber'
+              />
+            </Form.Field>
+
+            <Button type='submit' onClick={this.handleSubmit}>
+              Update
+            </Button>
+          </Form>
         </Modal.Content>
       </Modal>
     )
