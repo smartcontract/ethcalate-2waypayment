@@ -14,22 +14,53 @@ class ChannelAccordion extends Component {
     channelsToDisplay: []
   }
 
-  getChannelsToDisplay = (type, myChannels) => {
-    // filter channels based on channel type arg
-
-    // update the channelsToDisplay state variable
-    this.setState({
-      channelsToDisplay: myChannels
-    })
+  getChannelsToDisplay = (channelType) => {
+    const { myChannels } = this.props
+    let channelsToDisplay = []
+    switch (channelType) {
+      case 'open':
+        for (let i = 0; i < myChannels.length; i++) {
+          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          if (myChannels[i].status === 'open' && isJoin === false) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+      case 'join':
+        for (let i = 0; i < myChannels.length; i++) {
+          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          if (myChannels[i].status === 'open' && isJoin === true) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+      default:
+        for (let i = 0; i < myChannels.length; i++) {
+          if (myChannels[i].status === channelType) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+    }
+    this.setState({ channelsToDisplay })
   }
 
-  componentWillReceiveProps = nextProps => {
-    // display only the relevant types of channels in accordion
-    if (!nextProps) return
+  componentWillMount = async () => {
+    const { ethcalate, channelType } = this.props
+    if (ethcalate) {
+      this.getChannelsToDisplay(channelType)
+    }
+  }
 
-    if (nextProps !== this.props) {
-      const { type, myChannels } = nextProps
-      this.getChannelsToDisplay(type, myChannels)
+  componentWillReceiveProps = async (nextProps) => {
+    // display only the relevant types of channels in accordion
+    if (!nextProps) {
+      return
+    }
+
+    // new type of channels needed
+    if (nextProps.channelType !== this.props.channelType) {
+      this.getChannelsToDisplay(nextProps.channelType)
     }
   }
 
@@ -82,10 +113,12 @@ class ChannelAccordion extends Component {
       <Container>
         <Grid centered>
           <Grid.Row columns='equal' verticalAlign='middle'>
+            
             <Grid.Column>
               <Header className='h3 centered'>Counterparty</Header>
               <Header className='centered sub header'>{counterparty}</Header>
             </Grid.Column>
+            
             <Grid.Column>
               <Header className='h3 centered'>Balances</Header>
               <Grid.Row>
@@ -97,6 +130,7 @@ class ChannelAccordion extends Component {
                 </Header>
               </Grid.Row>
             </Grid.Column>
+            
             <Grid.Column>
               <Header className='h3 centered'>Status</Header>
               <Header className='centered sub header'>{status}</Header>
@@ -110,46 +144,39 @@ class ChannelAccordion extends Component {
   }
 
   channelDetailsPanel (channel) {
-    const { ethcalate } = this.props
-    const { id, agentB, balanceB, status } = channel
-
-    let allowJoin = true
-    if (ethcalate && ethcalate.web3) {
-      allowJoin =
-        agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
-    }
-
-    let allowDispute = false
+    const { ethcalate, channelType } = this.props
+    const { id, agentB, balanceB } = channel
 
     return (
       <Container>
-        <Grid centered columns='equal'>
-          <Grid.Row>
+        <Grid>
+          <Grid.Row centered columns='equal'>
+            {(channelType === 'open')
+              ? <Grid.Column textAlign='center'>
+                <UpdateStateModal channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
 
-            <Grid.Column>
-              <UpdateStateModal channel={channel} ethcalate={ethcalate} />
-            </Grid.Column>
-
-            {allowJoin
-              ? <Grid.Column>
+            {(channelType === 'join')
+              ? <Grid.Column textAlign='center'>
                 <JoinChannelModal channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {allowDispute
-              ? <Grid.Column>
+            {(channelType === 'challenge')
+              ? <Grid.Column textAlign='center'>
                 <ChallengeButton />
               </Grid.Column>
               : <div />}
 
-            {status === 'open'
-              ? <Grid.Column>
+            {(channelType === 'open')
+              ? <Grid.Column textAlign='center'>
                 <CloseChannelButton channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {status === 'challenge'
-              ? <Grid.Column>
+            {(channelType === 'closed')
+              ? <Grid.Column textAlign='center'>
                 <WithdrawFundsButton channelId={id} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
@@ -185,7 +212,7 @@ class ChannelAccordion extends Component {
 
   render () {
     const { channelsToDisplay } = this.state
-
+    
     return (
       <div>
         <Container>

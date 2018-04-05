@@ -8,11 +8,11 @@ import getWeb3 from './utils/getWeb3'
 class App extends Component {
   state = {
     ethcalate: null,
-    myChannels: []
+    myChannels: [],
+    fetching: true
   }
 
   async componentDidMount () {
-    
     try {
       const results = await getWeb3
       await this.instantiateContract(results.web3)
@@ -25,7 +25,7 @@ class App extends Component {
   async instantiateContract (web3) {
     const ethcalate = new Ethcalate(
       web3,
-      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+      '0x3d49d1ef2ade060a33c6e6aa213513a7ee9a6241',
       'http://localhost:3000'
     )
 
@@ -44,19 +44,24 @@ class App extends Component {
     const { ethcalate } = this.state
     const myChannels = await ethcalate.getMyChannels()
 
-    console.log('myChannels: ', myChannels)
+    console.log('App:myChannels: ', myChannels)
     this.setState({
-      myChannels
+      myChannels: myChannels,
+      fetching: false
     })
   }
 
   render () {
-    const { ethcalate, myChannels } = this.state
+    const { ethcalate, myChannels, fetching } = this.state
 
     return (
       <div className='App'>
         <div>
-          <DesktopComponent ethcalate={ethcalate} myChannels={myChannels} />
+          <DesktopComponent 
+            ethcalate={ethcalate} 
+            myChannels={myChannels} 
+            fetching={fetching}
+          />
         </div>
 
       </div>
