@@ -13,8 +13,8 @@ const MainHeading = () => (
       style={{
         fontSize: '4em',
         fontWeight: 'normal',
-        marginBottom: '1em',
-        marginTop: 0
+        marginBottom: '0em',
+        marginTop: '-1em'
       }}
     />
   </Container>
@@ -30,8 +30,8 @@ const ChannelHeading = () => {
         style={{
           fontSize: '1.5em',
           fontWeight: 'normal',
-          marginBottom: '1em',
-          marginTop: '2em'
+          marginBottom: '0.5em',
+          marginTop: '0em'
         }}
       />
     </Container>
@@ -56,7 +56,7 @@ class DesktopComponent extends React.Component {
       <div>
         <Container>
           <Grid centered>
-            <Grid.Row verticalAlign='top' style={{ marginTop: '1.5em' }}>
+            <Grid.Row verticalAlign='top' style={{ marginTop: '2em' }}>
 
               <Grid.Column textAlign='right'>
                 <UserSettingsModal ethcalate={ethcalate} />
