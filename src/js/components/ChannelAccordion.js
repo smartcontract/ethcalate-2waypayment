@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
 
-import TransactionTable from './TransactionTable'
+import TransactionModal from './TransactionModal'
 import ChallengeButton from './ChallengeButton'
 import JoinChannelModal from './JoinChannelModal'
 import UpdateStateModal from './UpdateStateModal'
@@ -159,12 +159,7 @@ class ChannelAccordion extends Component {
 
         <Grid centered>
           <Grid.Row>
-            <Header className='centered h4' style={{ marginTop: '1em' }}>
-              Latest Transactions
-            </Header>
-          </Grid.Row>
-          <Grid.Row>
-            <TransactionTable channel={channel} />
+            <TransactionModal ethcalate={ethcalate} channelId={id} />
           </Grid.Row>
         </Grid>
       </Container>
