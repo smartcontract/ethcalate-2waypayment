@@ -68,6 +68,7 @@ class UserSettingsModal extends Component {
     }
 
     this.handleClose()
+  }
 
   render () {
     return (

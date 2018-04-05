@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
-<<<<<<< HEAD
 import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
-=======
-import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
->>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
@@ -173,15 +169,6 @@ class ChannelAccordion extends Component {
             <TransactionTable channel={channel} />
           </Grid.Row>
         </Grid>
-<<<<<<< HEAD
-
-        <Grid centered>
-          <Grid.Row columns='equal'>
-            <Grid.Column />
-          </Grid.Row>
-        </Grid>
-=======
->>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
       </Container>
     )
   }
@@ -204,15 +191,11 @@ class ChannelAccordion extends Component {
   }
 
   render () {
-<<<<<<< HEAD
     const { activeIndex, channelsToDisplay } = this.state
     const { myChannels, channelType } = this.props
 
     // console.log('myChannels:', myChannels)
     // console.log('channelsToDisplay:', channelsToDisplay)
-=======
-    const { myChannels } = this.props
->>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
     return (
       <div>
