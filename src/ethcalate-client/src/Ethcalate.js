@@ -44,7 +44,8 @@ module.exports = class Ethcalate {
     check.assert.string(challenge, 'No challenge timer provided')
 
     const result = await this.channelManager.openChannel(to, challenge, {
-      value: depositInWei
+      value: depositInWei,
+      from: this.web3.eth.accounts[0]
     })
     return result
   }
@@ -218,6 +219,18 @@ module.exports = class Ethcalate {
     return response.data
   }
 
+  async getTransactions (channelId) {
+    check.assert.string(channelId, 'No channelId provided')
+    const response = await axios.get(
+      `${this.apiUrl}/stateupdates/${channelId}?nonce=0`
+    )
+    if (response.data) {
+      return response.data
+    } else {
+      return []
+    }
+  }
+
   async getMyChannels (status) {
     if (!this.channelManager) {
       throw new Error('Please call initContract()')
@@ -247,9 +260,7 @@ module.exports = class Ethcalate {
 
   async getMyDetails () {
     const account = this.web3.eth.accounts[0]
-    const response = await axios.get(
-      `${this.apiUrl}/user/address/${account}`
-    )
+    const response = await axios.get(`${this.apiUrl}/user/address/${account}`)
     return response.data
   }
 
