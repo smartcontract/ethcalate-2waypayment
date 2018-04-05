@@ -11,6 +11,7 @@ class NewChannelModal extends Component {
     submittedChallengePeriod: null,
     modalOpen: false,
     fieldError: null,
+    fieldWarning: null
   }
 
   async componentWillReceiveProps (nextProps) {}
@@ -18,11 +19,10 @@ class NewChannelModal extends Component {
   async createNewChannel () {
     const { to, challenge, deposit } = this.state
     const { ethcalate } = this.props
-
+    const depositInWei = ethcalate.web3.toWei(deposit, "ether");
     // create new channel with params
     try {
-      let depositInWei = deposit * 1000000000000000000
-      await ethcalate.openChannel({ to, depositInWei: depositInWei, challenge })
+      await ethcalate.openChannel({ to, depositInWei, challenge })
     } catch (e) {
       console.log(e)
     }
