@@ -25,7 +25,7 @@ class App extends Component {
   async instantiateContract (web3) {
     const ethcalate = new Ethcalate(
       web3,
-      '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
+      '0x4e72770760c011647d4873f60a3cf6cdea896cd8',
       'http://localhost:3000'
     )
 
