@@ -1,6 +1,5 @@
 const axios = require('axios')
 const check = require('check-types')
-const getWeb3 = require('./web3')
 const contract = require('truffle-contract')
 const abi = require('ethereumjs-abi')
 const artifacts = require('../../../build/contracts/ChannelManager.json')
@@ -25,7 +24,6 @@ module.exports = class Ethcalate {
     const ChannelManager = contract(artifacts)
     ChannelManager.setProvider(this.web3.currentProvider)
     ChannelManager.defaults({ from: this.web3.eth.accounts[0] })
-    console.log('this.web3.eth.accounts[0]: ', this.web3.eth.accounts[0])
 
     // init instance
     let channelManager
@@ -90,8 +88,7 @@ module.exports = class Ethcalate {
       throw new Error('Please call initContract()')
     }
 
-    let response = await axios.get(`${this.apiUrl}/channel/${channelId}`)
-    let { channel } = response.data
+    let { channel } = await this.getChannel(channelId)
     let isAgentA
     if (channel.agentA === this.web3.eth.accounts[0]) {
       isAgentA = true
@@ -116,7 +113,7 @@ module.exports = class Ethcalate {
     const requireSigA = isAgentA
     const requireSigB = !isAgentA
 
-    response = await axios.post(`${this.apiUrl}/state`, {
+    const response = await axios.post(`${this.apiUrl}/state`, {
       channelId,
       nonce,
       balanceA,
@@ -133,8 +130,7 @@ module.exports = class Ethcalate {
     if (!this.channelManager) {
       throw new Error('Please call initContract()')
     }
-    let response = await axios.get(`${this.apiUrl}/channel/${channelId}`)
-    let { channel } = response.data
+    let { channel } = await this.getChannel(channelId)
     let sig
     if (channel.agentA === this.web3.eth.accounts[0]) {
       // need sigB
@@ -146,10 +142,8 @@ module.exports = class Ethcalate {
       throw new Error('Not my channel')
     }
 
-    response = await axios.get(
-      `${this.apiUrl}/channel/${channelId}/latest?sig=${sig}`
-    )
-    channel = response.data.channel
+    const response = await this.getLatestStateUpdate(channelId, sig)
+    channel = response.channel
 
     const latestCountersignedTransction = channel.transactions[0]
     if (latestCountersignedTransction) {
@@ -174,7 +168,8 @@ module.exports = class Ethcalate {
           balanceA,
           balanceB,
           sigA,
-          signedTx
+          signedTx,
+          { from: this.web3.eth.accounts[0] }
         )
       } else {
         // ours is sigA
@@ -184,18 +179,19 @@ module.exports = class Ethcalate {
           balanceA,
           balanceB,
           signedTx,
-          sigB
+          sigB,
+          { from: this.web3.eth.accounts[0] }
         )
       }
     } else {
-      // no countersigned transactions
+      throw new Error('No countersigned transaction to close channel with')
     }
   }
 
   async closeChannel (channelId) {
-    console.log('channelId: ', channelId)
-    const res = await this.channelManager.closeChannel(channelId)
-    console.log('res: ', res)
+    await this.channelManager.closeChannel(channelId, {
+      from: this.web3.eth.accounts[0]
+    })
   }
 
   async updatePhone (phone) {
@@ -218,18 +214,19 @@ module.exports = class Ethcalate {
 
   async getChannel (channelId) {
     check.assert.string(channelId, 'No channelId provided')
-    const response = await axios.get(`${this.apiUrl}/channel/${channelId}`)
+    const response = await axios.get(`${this.apiUrl}/channel/id/${channelId}`)
     return response.data
   }
 
-  async getMyChannels () {
+  async getMyChannels (status) {
     if (!this.channelManager) {
       throw new Error('Please call initContract()')
     }
 
-    const response = await axios.get(
-      `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
-    )
+    let apiUrl = `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
+    apiUrl = status ? `${apiUrl}&status=${status}` : apiUrl
+
+    const response = await axios.get(apiUrl)
     if (response.data) {
       return response.data.channels.map(channel => {
         // if balances dont exist from stateUpdate, balance = deposit
@@ -252,6 +249,32 @@ module.exports = class Ethcalate {
     const account = this.web3.eth.accounts[0]
     const response = await axios.get(
       `${this.apiUrl}/user/address/${account}`
+    )
+    return response.data
+  }
+
+  async getMyUnjoinedChannels () {
+    if (!this.channelManager) {
+      throw new Error('Please call initContract()')
+    }
+
+    const response = await axios.get(
+      `${this.apiUrl}/channel/unjoined?address=${this.web3.eth.accounts[0]}`
+    )
+    if (response.data) {
+      return response.data.channels.map(channel => {
+        channel.balanceA = channel.depositA
+        channel.balanceB = channel.depositB
+        return channel
+      })
+    } else {
+      return []
+    }
+  }
+
+  async getLatestStateUpdate (channelId, sig) {
+    const response = await axios.get(
+      `${this.apiUrl}/channel/id/${channelId}/latest?sig=${sig}`
     )
     return response.data
   }

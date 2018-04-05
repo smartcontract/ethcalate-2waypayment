@@ -1,15 +1,41 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
+<<<<<<< HEAD
+import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
+=======
+import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
 import JoinChannelModal from './JoinChannelModal'
 import UpdateStateModal from './UpdateStateModal'
 import CloseChannelButton from './CloseChannelButton'
+import WithdrawFundsButton from './WithdrawFundsButton'
 
 class ChannelAccordion extends Component {
   state = {
-    activeIndex: null
+    activeIndex: null,
+    channelsToDisplay: []
+  }
+
+  getChannelsToDisplay = (type, myChannels) => {
+    // filter channels based on channel type arg
+
+    // update the channelsToDisplay state variable
+    this.setState({
+      channelsToDisplay: myChannels
+    })
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    // display only the relevant types of channels in accordion
+    if (!nextProps)
+      return
+    
+    if (nextProps !== this.props) {
+      const { type, myChannels } = nextProps
+      this.getChannelsToDisplay(type, myChannels)
+    }
   }
 
   handleRowClick = (e, titleProps) => {
@@ -22,74 +48,6 @@ class ChannelAccordion extends Component {
 
     this.setState({ activeIndex: newIndex })
     this.props.callbackFromParent(newIndex)
-  }
-
-  handleJoinChannelClick = async channelId => {
-    console.log('handleJoinChannelClick with channelId:' + channelId)
-    const { ethcalate } = this.props
-    try {
-      await ethcalate.joinChannel({ channelId, depositInEth: '1' }) // TODO: SET AMOUNT FROM UI
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleUpdateStateClick = async ({
-    id,
-    agentA,
-    agentB,
-    balanceA,
-    balanceB,
-    latestNonce
-  }) => {
-    console.log('handleJoinChannelClick with channelId:' + id)
-    const { ethcalate } = this.props
-
-    console.log(agentA, agentB)
-
-    // detect who is counterparty
-    let isAgentA
-    if (ethcalate.web3.eth.accounts[0] === agentA) {
-      isAgentA = true
-    } else if (ethcalate.web3.eth.accounts[0] === agentB) {
-      isAgentA = false
-    } else {
-      throw new Error('This is not your channel')
-    }
-    console.log('isAgentA: ', isAgentA)
-
-    try {
-      const res = await ethcalate.updateState({
-        channelId: id,
-        nonce: parseInt(latestNonce) + 2,
-        balanceA: ethcalate.web3.toWei(0.5, 'ether'),
-        balanceB: ethcalate.web3.toWei(1.5, 'ether'),
-        isAgentA
-      })
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleStartChallengeClick = async channelId => {
-    const { ethcalate } = this.props
-    try {
-      const res = await ethcalate.startChallengePeriod(channelId)
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  handleCloseChannelClick = async channelId => {
-    const { ethcalate } = this.props
-    try {
-      const res = await ethcalate.closeChannel(channelId)
-      console.log('res: ', res)
-    } catch (e) {
-      console.log(e)
-    }
   }
 
   channelTitlePanel ({
@@ -159,21 +117,16 @@ class ChannelAccordion extends Component {
 
   channelDetailsPanel (channel) {
     const { ethcalate } = this.props
-    const {
-      id,
-      agentA,
-      agentB,
-      balanceA,
-      balanceB,
-      latestNonce,
-      status
-    } = channel
+    const { id, agentB, balanceB, status } = channel
 
-    let allowJoin = false
+    let allowJoin = true
     if (ethcalate && ethcalate.web3) {
       allowJoin =
         agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
     }
+
+    let allowDispute = false
+
     return (
       <Container>
         <Grid centered columns='equal'>
@@ -183,19 +136,29 @@ class ChannelAccordion extends Component {
               <UpdateStateModal channel={channel} ethcalate={ethcalate} />
             </Grid.Column>
 
-            <Grid.Column>
-              {allowJoin
-                ? <JoinChannelModal channelId={id} ethcalate={ethcalate} />
-                : <div />}
-            </Grid.Column>
+            {allowJoin
+              ? <Grid.Column>
+                <JoinChannelModal channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
 
-            <Grid.Column>
-              <ChallengeButton />
-            </Grid.Column>
+            {allowDispute
+              ? <Grid.Column>
+                <ChallengeButton />
+              </Grid.Column>
+              : <div />}
 
-            <Grid.Column>
-              <CloseChannelButton />
-            </Grid.Column>
+            {status === 'open'
+              ? <Grid.Column>
+                <CloseChannelButton channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
+
+            {status === 'challenge'
+              ? <Grid.Column>
+                <WithdrawFundsButton channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
 
           </Grid.Row>
         </Grid>
@@ -210,27 +173,15 @@ class ChannelAccordion extends Component {
             <TransactionTable channel={channel} />
           </Grid.Row>
         </Grid>
+<<<<<<< HEAD
 
         <Grid centered>
           <Grid.Row columns='equal'>
             <Grid.Column />
           </Grid.Row>
         </Grid>
-
-        {/* <Grid centered celled>
-          <Grid.Row columns='equal'>
-            <Grid.Column>{agentB ? `${agentB.slice(0, 5)}...` : ''}</Grid.Column>
-            <Grid.Column>
-              {balanceA ? parseFloat(balanceA).toFixed(4) : 0}
-            </Grid.Column>
-            <Grid.Column>
-              {balanceB ? parseFloat(balanceB).toFixed(4) : 0}
-            </Grid.Column>
-            <Grid.Column>{status}</Grid.Column>
-            <Grid.Column>{latestNonce}</Grid.Column>
-          </Grid.Row>
-        </Grid> */}
-
+=======
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
       </Container>
     )
   }
@@ -253,35 +204,26 @@ class ChannelAccordion extends Component {
   }
 
   render () {
-    const { activeIndex } = this.state
+<<<<<<< HEAD
+    const { activeIndex, channelsToDisplay } = this.state
+    const { myChannels, channelType } = this.props
+
+    // console.log('myChannels:', myChannels)
+    // console.log('channelsToDisplay:', channelsToDisplay)
+=======
     const { myChannels } = this.props
-    const channelGrid = this.channelDetailsPanel(
-      'Counterparty',
-      'Balance',
-      'Status',
-      'Nonce'
-    )
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
     return (
       <div>
         <Container>
-          <Header
-            as='h3'
-            textAlign='center'
-            content='Your Channels'
-            style={{
-              fontSize: '1.5em',
-              fontWeight: 'normal',
-              marginBottom: '1em',
-              marginTop: '2em'
-            }}
-          />
-
+          
           <Accordion fluid styled>
-            {myChannels.map((channel, index) => {
+            {channelsToDisplay.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
           </Accordion>
+          
         </Container>
       </div>
     )

@@ -1,4 +1,3 @@
-/* globals state */
 import React, { Component } from 'react'
 import DesktopComponent from './js/components/DesktopComponent'
 
@@ -13,6 +12,7 @@ class App extends Component {
   }
 
   async componentDidMount () {
+    
     try {
       const results = await getWeb3
       await this.instantiateContract(results.web3)
@@ -30,7 +30,7 @@ class App extends Component {
     )
 
     await ethcalate.initContract()
-    console.log('ethcalate.account:', ethcalate.web3.eth.accounts[0])
+    console.log('ethcalate.web3.eth.accounts[0]:', ethcalate.web3.eth.accounts[0])
 
     this.setState({
       ethcalate
