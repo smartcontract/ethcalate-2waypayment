@@ -14,31 +14,41 @@ class ChannelAccordion extends Component {
     channelsToDisplay: []
   }
 
-  setStateAsync = (state) => {
-    return new Promise((resolve) => {
-      this.setState(state, resolve)
-    })
-  }
-
-<<<<<<< HEAD
-  getChannelsToDisplay = async (type) => {
-    // console.log('getChannelsToDisplay()')
-    const { ethcalate, myChannels } = this.props
-    const channelsToDisplay = await ethcalate.getMyChannels(type)
-    this.setStateAsync({ channelsToDisplay })
-    // console.log('channelsToDisplay:',channelsToDisplay)
+  getChannelsToDisplay = (type) => {
+    const { myChannels } = this.props
+    let channelsToDisplay = []
+    switch (type) {
+      case 'open':
+        for (let i = 0; i < myChannels.length; i++) {
+          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          if (myChannels[i].status === 'open' && !isJoin) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+      case 'join':
+        for (let i = 0; i < myChannels.length; i++) {
+          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          if (myChannels[i].status === 'open' && isJoin) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+      default:
+        for (let i = 0; i < myChannels.length; i++) {
+          if (myChannels[i].status === type) {
+            channelsToDisplay.push(myChannels[i])
+          }
+        }
+        break
+    }
+    this.setState({ channelsToDisplay })
   }
 
   componentWillMount = async () => {
-    // called before render()
-
-
-
-    // console.log('ChannelAccordion:componentWillMount')
     const { ethcalate, myChannels, channelType } = this.props
     if (ethcalate) {
-      const channelsToDisplay = await ethcalate.getMyChannels(channelType)
-      this.setStateAsync({ channelsToDisplay })
+      this.getChannelsToDisplay(channelType)
     }
   }
 
@@ -47,20 +57,10 @@ class ChannelAccordion extends Component {
     if (!nextProps) {
       return
     }
-    
+
     // new type of channels needed
     if (nextProps.channelType !== this.props.channelType) {
-      // console.log('componentWillReceiveProps:', nextProps.channelType)
-      const channelsToDisplay = await this.getChannelsToDisplay(nextProps.channelType)
-=======
-  componentWillReceiveProps = nextProps => {
-    // display only the relevant types of channels in accordion
-    if (!nextProps) return
-
-    if (nextProps !== this.props) {
-      const { type, myChannels } = nextProps
-      this.getChannelsToDisplay(type, myChannels)
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
+      this.getChannelsToDisplay(nextProps.channelType)
     }
   }
 
@@ -187,16 +187,7 @@ class ChannelAccordion extends Component {
 
         <Grid centered>
           <Grid.Row>
-<<<<<<< HEAD
-            <Header className='centered h4' style={{ marginTop: '1em' }}>
-              Latest Transactions
-            </Header>
-          </Grid.Row>
-          <Grid.Row>
-            <TransactionTable channel={channel} ethcalate={ethcalate}/>
-=======
             <TransactionModal ethcalate={ethcalate} channelId={id} />
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
           </Grid.Row>
         </Grid>
       </Container>
@@ -221,16 +212,8 @@ class ChannelAccordion extends Component {
   }
 
   render () {
-<<<<<<< HEAD
-    const { activeIndex, channelsToDisplay } = this.state
-    const { myChannels, channelType } = this.props
-
-    // console.log('ChannelAccordion:channelType:', channelType)
-    // console.log('ChannelAccordion:myChannels:', myChannels)
-    // console.log('ChannelAccordion:channelsToDisplay:', channelsToDisplay)
-=======
     const { channelsToDisplay } = this.state
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
+    const { myChannels, channelType } = this.props
 
     return (
       <div>

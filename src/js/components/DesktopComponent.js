@@ -29,15 +29,9 @@ const ChannelHeading = () => (
       style={{
           fontSize: '1.5em',
           fontWeight: 'normal',
-<<<<<<< HEAD
           marginBottom: '1em',
           marginTop: '2em'
       }}
-=======
-          marginBottom: '0.5em',
-          marginTop: '0em'
-        }}
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
       />
   </Container>
 )
@@ -49,7 +43,6 @@ class DesktopComponent extends React.Component {
     hasChannels: null
   }
 
-<<<<<<< HEAD
   componentWillMount = () => {
     const { ethcalate, myChannels } = this.props
     const fetching = (!ethcalate)
@@ -65,10 +58,6 @@ class DesktopComponent extends React.Component {
         hasChannels: (nextProps.myChannels.length !== 0)
       })
     }
-=======
-  handleMenuItemClick = (e, { name }) => {
-    this.setState({ activeMenuItem: name })
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
   }
 
   render () {
@@ -83,12 +72,7 @@ class DesktopComponent extends React.Component {
       <div>
         <Container>
           <Grid centered>
-<<<<<<< HEAD
             <Grid.Row verticalAlign='top' style={{ marginTop: '1.5em' }}>
-=======
-            <Grid.Row verticalAlign='top' style={{ marginTop: '2em' }}>
-
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
               <Grid.Column textAlign='right'>
                 <UserSettingsModal ethcalate={ethcalate} />
               </Grid.Column>
@@ -110,7 +94,6 @@ class DesktopComponent extends React.Component {
 
           <ChannelHeading />
 
-<<<<<<< HEAD
           <Loader active={fetching} />
 
           <ChannelMenu
@@ -119,54 +102,6 @@ class DesktopComponent extends React.Component {
             myChannels={myChannels}
             display={!fetching}
           />
-=======
-            <Grid.Row>
-              <Menu className='four item pointing top attached menu'>
-                <Menu.Item
-                  active={activeMenuItem === 'open'}
-                  name='open'
-                  className='link'
-                  onClick={this.handleMenuItemClick}
-                >
-                  Open
-                </Menu.Item>
-                <Menu.Item
-                  active={activeMenuItem === 'join'}
-                  name='join'
-                  className='link'
-                  onClick={this.handleMenuItemClick}
-                >
-                  Join Channels
-                </Menu.Item>
-                <Menu.Item
-                  active={activeMenuItem === 'challenge'}
-                  name='challenge'
-                  className='link'
-                  onClick={this.handleMenuItemClick}
-                >
-                  Challenge Period
-                </Menu.Item>
-                <Menu.Item
-                  active={activeMenuItem === 'closed'}
-                  name='closed'
-                  className='link'
-                  onClick={this.handleMenuItemClick}
-                >
-                  Closed
-                </Menu.Item>
-              </Menu>
-
-              <Segment attached='bottom'>
-                <ChannelAccordion
-                  myChannels={myChannels}
-                  ethcalate={ethcalate}
-                  visible={myChannels.length !== 0}
-                  type={activeMenuItem}
-                />
-              </Segment>
-
-            </Grid.Row>
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
 
         </Container>
       </div>

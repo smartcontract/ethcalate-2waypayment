@@ -21,8 +21,6 @@ class UserSettingsModal extends Component {
       })
     }
   }
-<<<<<<< HEAD
-=======
 
   async updateDetails (name, phoneNumber) {
     const { ethcalate } = this.props
@@ -44,7 +42,6 @@ class UserSettingsModal extends Component {
     this.getDetails()
     this.setState({ modalOpen: true })
   }
->>>>>>> 1d546381d0e118fcf596e0b02cb13cf93d263fc0
 
   handleClose = () => {
     // close modal
