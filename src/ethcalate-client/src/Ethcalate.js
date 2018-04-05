@@ -209,14 +209,15 @@ module.exports = class Ethcalate {
     return response.data
   }
 
-  async getMyChannels () {
+  async getMyChannels (status) {
     if (!this.channelManager) {
       throw new Error('Please call initContract()')
     }
 
-    const response = await axios.get(
-      `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
-    )
+    let apiUrl = `${this.apiUrl}/channel?address=${this.web3.eth.accounts[0]}`
+    apiUrl = status ? `${apiUrl}&status=${status}` : apiUrl
+
+    const response = await axios.get(apiUrl)
     if (response.data) {
       return response.data.channels.map(channel => {
         // if balances dont exist from stateUpdate, balance = deposit
