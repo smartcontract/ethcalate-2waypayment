@@ -58,7 +58,8 @@ module.exports = class Ethcalate {
     check.assert.string(depositInWei, 'No initial deposit provided')
 
     const result = await this.channelManager.joinChannel(channelId, {
-      value: depositInWei
+      value: depositInWei,
+      from: this.web3.eth.accounts[0]
     })
     return result
   }
