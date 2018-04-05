@@ -1,13 +1,5 @@
 import React, { Component } from 'react'
-import {
-  Button,
-  Modal,
-  Segment,
-  Label,
-  Input,
-  Icon,
-  Container
-} from 'semantic-ui-react'
+import { Modal, Label, Icon } from 'semantic-ui-react'
 
 class UserSettingsModal extends Component {
   state = {
@@ -15,16 +7,6 @@ class UserSettingsModal extends Component {
   }
 
   getPhoneNumber () {
-    console.log('getPhoneNumber()')
-    const { ethcalate } = this.props
-
-    if (ethcalate) {
-      console.log(ethcalate.web3.eth.accounts[0])
-      // await ethcalate.updatePhone('4082396181')
-    }
-
-    // const account = ethcalate.web3.eth.accounts[0]
-    // return account
     return '1234'
   }
 
