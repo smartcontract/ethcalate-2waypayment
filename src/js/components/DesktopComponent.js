@@ -40,18 +40,19 @@ const ChannelHeading = () => {
 
 class DesktopComponent extends React.Component {
   state = {
-    activeMenuItem: null
+    activeMenuItem: 'open'
   }
 
-  hideChannelButtons = _activeChannelIndex => {
-    this.setState({
-      activeChannelIndex: _activeChannelIndex
-    })
+
+
+  handleMenuItemClick = (e, { name }) => {
+    this.setState({ activeMenuItem: name })
   }
 
   render () {
     const { ethcalate, myChannels } = this.props
     const { activeMenuItem } = this.state
+    console.log(activeMenuItem)
 
     return (
       <div>
@@ -85,16 +86,16 @@ class DesktopComponent extends React.Component {
             </Grid.Row>
 
             <Grid.Row>
-              <Menu className='three item pointing top attached menu'>
+              <Menu className='four item pointing top attached menu'>
                 <Menu.Item active={activeMenuItem === 'open'} name='open' className='link' onClick={this.handleMenuItemClick}>Open</Menu.Item>
-                <Menu.Item active={activeMenuItem === 'action'} name='action' className='link' onClick={this.handleMenuItemClick}>Action Needed</Menu.Item>
+                <Menu.Item active={activeMenuItem === 'join'} name='join' className='link' onClick={this.handleMenuItemClick}>Join Channels</Menu.Item>
+                <Menu.Item active={activeMenuItem === 'challenge'} name='challenge' className='link' onClick={this.handleMenuItemClick}>Challenge Period</Menu.Item>
                 <Menu.Item active={activeMenuItem === 'closed'} name='closed' className='link' onClick={this.handleMenuItemClick}>Closed</Menu.Item>
               </Menu>
 
               <Segment attached='bottom'>
                 <ChannelAccordion
-                  callbackFromParent={this.hideChannelButtons}
-                  myChannels={this.getmyChannels}
+                  myChannels={myChannels}
                   ethcalate={ethcalate}
                   visible={myChannels.length !== 0}
                   type={activeMenuItem}

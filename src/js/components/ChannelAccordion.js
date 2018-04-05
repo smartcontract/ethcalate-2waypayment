@@ -13,32 +13,23 @@ class ChannelAccordion extends Component {
     channelsToDisplay: []
   }
 
-  getChannelsToDisplay = async (channelType, myChannels) => {
-    const { ethcalate } = this.props.ethcalate
-    switch(channelType) {
-      case 'open':
+  getChannelsToDisplay = (type, myChannels) => {
+    // filter channels based on channel type arg
 
-        break
-      case 'join':
-        break
-      case 'challenge':
-        break
-      case 'closed':
-        break
-      default:
-        break
-
-    }
+    // update the channelsToDisplay state variable
+    this.setState({
+      channelsToDisplay: myChannels
+    })
   }
 
   componentWillReceiveProps = (nextProps) => {
     // display only the relevant types of channels in accordion
-    if (nextProps && nextProps !== this.props) {
-      const { channelType, myChannels } = nextProps.type
-      const channelsToDisplay = this.getChannelsToDisplay(channelType, myChannels)
-      this.setState({
-        channelsToDisplay
-      })
+    if (!nextProps)
+      return
+    
+    if (nextProps !== this.props) {
+      const { type, myChannels } = nextProps
+      this.getChannelsToDisplay(type, myChannels)
     }
   }
 
@@ -131,7 +122,7 @@ class ChannelAccordion extends Component {
       status
     } = channel
 
-    let allowJoin = false
+    let allowJoin = true
     if (ethcalate && ethcalate.web3) {
       allowJoin =
         agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
@@ -202,23 +193,19 @@ class ChannelAccordion extends Component {
   render () {
     const { activeIndex, channelsToDisplay } = this.state
     const { myChannels, channelType } = this.props
-    const channelGrid = this.channelDetailsPanel(
-      'Counterparty',
-      'Balance',
-      'Status',
-      'Nonce'
-    )
-    console.log('myChannels:', myChannels)
-    console.log('channelsToDisplay:', channelsToDisplay)
+
+    // console.log('myChannels:', myChannels)
+    // console.log('channelsToDisplay:', channelsToDisplay)
 
     return (
       <div>
         <Container>
-          {/* <Accordion fluid styled>
-            {myChannels.map((channel, index) => {
+          
+          <Accordion fluid styled>
+            {channelsToDisplay.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
-          </Accordion> */}
+          </Accordion>
           
         </Container>
       </div>
