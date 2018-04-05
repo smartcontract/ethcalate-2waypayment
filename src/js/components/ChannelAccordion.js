@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
+import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
@@ -23,11 +23,10 @@ class ChannelAccordion extends Component {
     })
   }
 
-  componentWillReceiveProps = (nextProps) => {
+  componentWillReceiveProps = nextProps => {
     // display only the relevant types of channels in accordion
-    if (!nextProps)
-      return
-    
+    if (!nextProps) return
+
     if (nextProps !== this.props) {
       const { type, myChannels } = nextProps
       this.getChannelsToDisplay(type, myChannels)
@@ -43,7 +42,6 @@ class ChannelAccordion extends Component {
     const newIndex = activeIndex === index ? -1 : index
 
     this.setState({ activeIndex: newIndex })
-    this.props.callbackFromParent(newIndex)
   }
 
   channelTitlePanel ({
@@ -191,22 +189,18 @@ class ChannelAccordion extends Component {
   }
 
   render () {
-    const { activeIndex, channelsToDisplay } = this.state
-    const { myChannels, channelType } = this.props
-
-    // console.log('myChannels:', myChannels)
-    // console.log('channelsToDisplay:', channelsToDisplay)
+    const { channelsToDisplay } = this.state
 
     return (
       <div>
         <Container>
-          
+
           <Accordion fluid styled>
             {channelsToDisplay.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
           </Accordion>
-          
+
         </Container>
       </div>
     )
