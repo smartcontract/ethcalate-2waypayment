@@ -1,18 +1,23 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion, Button } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 
 class CloseChannelButton extends Component {
-
-    handleJoinChannelClick () {
-        return
+  handleCloseChannelClick = async () => {
+    const { ethcalate, channelId } = this.props
+    try {
+      await ethcalate.startChallengePeriod(channelId)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    render() {
-        return (
-            <Button onClick={this.handleJoinChannelClick}>Close Selected Channel</Button>
-        )
-    }
-
+  render () {
+    return (
+      <Button onClick={this.handleCloseChannelClick}>
+        Start Close Channel
+      </Button>
+    )
+  }
 }
 
 export default CloseChannelButton

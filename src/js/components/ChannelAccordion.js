@@ -1,11 +1,16 @@
 import React, { Component } from 'react'
+<<<<<<< HEAD
 import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
+=======
+import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
 import JoinChannelModal from './JoinChannelModal'
 import UpdateStateModal from './UpdateStateModal'
 import CloseChannelButton from './CloseChannelButton'
+import WithdrawFundsButton from './WithdrawFundsButton'
 
 class ChannelAccordion extends Component {
   state = {
@@ -112,21 +117,16 @@ class ChannelAccordion extends Component {
 
   channelDetailsPanel (channel) {
     const { ethcalate } = this.props
-    const {
-      id,
-      agentA,
-      agentB,
-      balanceA,
-      balanceB,
-      latestNonce,
-      status
-    } = channel
+    const { id, agentB, balanceB, status } = channel
 
     let allowJoin = true
     if (ethcalate && ethcalate.web3) {
       allowJoin =
         agentB === ethcalate.web3.eth.accounts[0] && parseFloat(balanceB) === 0
     }
+
+    let allowDispute = false
+
     return (
       <Container>
         <Grid centered columns='equal'>
@@ -136,19 +136,29 @@ class ChannelAccordion extends Component {
               <UpdateStateModal channel={channel} ethcalate={ethcalate} />
             </Grid.Column>
 
-            <Grid.Column>
-              {allowJoin
-                ? <JoinChannelModal channelId={id} ethcalate={ethcalate} />
-                : <div />}
-            </Grid.Column>
+            {allowJoin
+              ? <Grid.Column>
+                <JoinChannelModal channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
 
-            <Grid.Column>
-              <ChallengeButton />
-            </Grid.Column>
+            {allowDispute
+              ? <Grid.Column>
+                <ChallengeButton />
+              </Grid.Column>
+              : <div />}
 
-            <Grid.Column>
-              <CloseChannelButton />
-            </Grid.Column>
+            {status === 'open'
+              ? <Grid.Column>
+                <CloseChannelButton channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
+
+            {status === 'challenge'
+              ? <Grid.Column>
+                <WithdrawFundsButton channelId={id} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
 
           </Grid.Row>
         </Grid>
@@ -163,12 +173,15 @@ class ChannelAccordion extends Component {
             <TransactionTable channel={channel} />
           </Grid.Row>
         </Grid>
+<<<<<<< HEAD
 
         <Grid centered>
           <Grid.Row columns='equal'>
             <Grid.Column />
           </Grid.Row>
         </Grid>
+=======
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
       </Container>
     )
   }
@@ -191,11 +204,15 @@ class ChannelAccordion extends Component {
   }
 
   render () {
+<<<<<<< HEAD
     const { activeIndex, channelsToDisplay } = this.state
     const { myChannels, channelType } = this.props
 
     // console.log('myChannels:', myChannels)
     // console.log('channelsToDisplay:', channelsToDisplay)
+=======
+    const { myChannels } = this.props
+>>>>>>> 56106b84ccc11e474899e157ed8fcdbd693885e8
 
     return (
       <div>

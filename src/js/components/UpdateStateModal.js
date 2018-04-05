@@ -6,7 +6,7 @@ class UpdateStateModal extends Component {
     amountToSend: 0
   }
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
     const { ethcalate, channel } = this.props
     const { amountToSend } = this.state
     let { id, agentA, agentB, balanceA, balanceB } = channel
@@ -26,12 +26,15 @@ class UpdateStateModal extends Component {
         parseFloat(ethcalate.web3.fromWei(balanceB, 'ether')) -
         parseFloat(amountToSend)
     }
-
-    ethcalate.updateState({
-      channelId: id,
-      balanceA: ethcalate.web3.toWei(balanceA, 'ether'),
-      balanceB: ethcalate.web3.toWei(balanceB, 'ether')
-    })
+    try {
+      await ethcalate.updateState({
+        channelId: id,
+        balanceA: ethcalate.web3.toWei(balanceA, 'ether'),
+        balanceB: ethcalate.web3.toWei(balanceB, 'ether')
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
   render () {
     return (
