@@ -44,7 +44,8 @@ module.exports = class Ethcalate {
     check.assert.string(challenge, 'No challenge timer provided')
 
     const result = await this.channelManager.openChannel(to, challenge, {
-      value: depositInWei
+      value: depositInWei,
+      from: this.web3.eth.accounts[0]
     })
     return result
   }
@@ -196,9 +197,18 @@ module.exports = class Ethcalate {
 
   async updatePhone (phone) {
     check.assert.string(phone, 'No phone number provided')
-    const response = await axios.post(`${this.apiUrl}/updatePhone`, {
+    const response = await axios.post(`${this.apiUrl}/phone`, {
       address: this.web3.eth.accounts[0],
       phone: phone
+    })
+    return response.data
+  }
+
+  async updateName (name) {
+    check.assert.string(name, 'No name provided')
+    const response = await axios.post(`${this.apiUrl}/name`, {
+      address: this.web3.eth.accounts[0],
+      name: name
     })
     return response.data
   }
@@ -207,6 +217,18 @@ module.exports = class Ethcalate {
     check.assert.string(channelId, 'No channelId provided')
     const response = await axios.get(`${this.apiUrl}/channel/id/${channelId}`)
     return response.data
+  }
+
+  async getTransactions (channelId) {
+    check.assert.string(channelId, 'No channelId provided')
+    const response = await axios.get(
+      `${this.apiUrl}/stateupdates/${channelId}?nonce=0`
+    )
+    if (response.data) {
+      return response.data
+    } else {
+      return []
+    }
   }
 
   async getMyChannels (status) {
@@ -234,6 +256,12 @@ module.exports = class Ethcalate {
     } else {
       return []
     }
+  }
+
+  async getMyDetails () {
+    const account = this.web3.eth.accounts[0]
+    const response = await axios.get(`${this.apiUrl}/user/address/${account}`)
+    return response.data
   }
 
   async getMyUnjoinedChannels () {
