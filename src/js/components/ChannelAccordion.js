@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion, Button, Tab, Item } from 'semantic-ui-react'
+import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
 
 import TransactionTable from './TransactionTable'
 import ChallengeButton from './ChallengeButton'
@@ -21,30 +21,36 @@ class ChannelAccordion extends Component {
   }
 
   getChannelsToDisplay = async (type) => {
-    // filter channels based on channel type arg
+    // console.log('getChannelsToDisplay()')
     const { ethcalate, myChannels } = this.props
-    let channelsToDisplay
-    if (type !== 'join') {
-      channelsToDisplay = await ethcalate.getMyChannels(type)
-    } else {
-      channelsToDisplay = await ethcalate.getMyUnjoinedChannels()
+    const channelsToDisplay = await ethcalate.getMyChannels(type)
+    this.setStateAsync({ channelsToDisplay })
+    // console.log('channelsToDisplay:',channelsToDisplay)
+  }
+
+  componentWillMount = async () => {
+    // called before render()
+
+
+
+    // console.log('ChannelAccordion:componentWillMount')
+    const { ethcalate, myChannels, channelType } = this.props
+    if (ethcalate) {
+      const channelsToDisplay = await ethcalate.getMyChannels(channelType)
+      this.setStateAsync({ channelsToDisplay })
     }
-    console.log('getChannelsToDisplay(', type, ') retuns:', channelsToDisplay)
-    return channelsToDisplay
   }
 
   componentWillReceiveProps = async (nextProps) => {
     // display only the relevant types of channels in accordion
-    if (!nextProps)
+    if (!nextProps) {
       return
+    }
     
     // new type of channels needed
-    if (nextProps.type !== this.props.type) {
-      console.log('componentWillReceiveProps:', nextProps.type)
-      const channelsToDisplay = await this.getChannelsToDisplay(nextProps.type)
-      await this.setStateAsync({
-        channelsToDisplay
-      })
+    if (nextProps.channelType !== this.props.channelType) {
+      // console.log('componentWillReceiveProps:', nextProps.channelType)
+      const channelsToDisplay = await this.getChannelsToDisplay(nextProps.channelType)
     }
   }
 
@@ -204,15 +210,16 @@ class ChannelAccordion extends Component {
     const { activeIndex, channelsToDisplay } = this.state
     const { myChannels, channelType } = this.props
 
-    console.log('myChannels:', myChannels)
-    // console.log('channelsToDisplay:', channelsToDisplay)
+    // console.log('ChannelAccordion:channelType:', channelType)
+    // console.log('ChannelAccordion:myChannels:', myChannels)
+    // console.log('ChannelAccordion:channelsToDisplay:', channelsToDisplay)
 
     return (
       <div>
         <Container>
           
           <Accordion fluid styled>
-            {myChannels.map((channel, index) => {
+            {channelsToDisplay.map((channel, index) => {
               return this.accordionRow(channel, index)
             })}
           </Accordion>
