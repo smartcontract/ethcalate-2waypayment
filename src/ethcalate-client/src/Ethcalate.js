@@ -142,10 +142,8 @@ module.exports = class Ethcalate {
       throw new Error('Not my channel')
     }
 
-    const response = await axios.get(
-      `${this.apiUrl}/channel/id/${channelId}/latest?sig=${sig}`
-    )
-    channel = response.data.channel
+    const response = await this.getLatestStateUpdate(channelId, sig)
+    channel = response.channel
 
     const latestCountersignedTransction = channel.transactions[0]
     if (latestCountersignedTransction) {
@@ -170,7 +168,8 @@ module.exports = class Ethcalate {
           balanceA,
           balanceB,
           sigA,
-          signedTx
+          signedTx,
+          { from: this.web3.eth.accounts[0] }
         )
       } else {
         // ours is sigA
@@ -180,18 +179,19 @@ module.exports = class Ethcalate {
           balanceA,
           balanceB,
           signedTx,
-          sigB
+          sigB,
+          { from: this.web3.eth.accounts[0] }
         )
       }
     } else {
-      // no countersigned transactions
+      throw new Error('No countersigned transaction to close channel with')
     }
   }
 
   async closeChannel (channelId) {
-    console.log('channelId: ', channelId)
-    const res = await this.channelManager.closeChannel(channelId)
-    console.log('res: ', res)
+    await this.channelManager.closeChannel(channelId, {
+      from: this.web3.eth.accounts[0]
+    })
   }
 
   async updatePhone (phone) {
@@ -252,6 +252,13 @@ module.exports = class Ethcalate {
     } else {
       return []
     }
+  }
+
+  async getLatestStateUpdate (channelId, sig) {
+    const response = await axios.get(
+      `${this.apiUrl}/channel/id/${channelId}/latest?sig=${sig}`
+    )
+    return response.data
   }
 
   async getChannelByAddresses (agentA, agentB) {
