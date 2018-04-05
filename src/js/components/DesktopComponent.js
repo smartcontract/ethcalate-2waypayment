@@ -43,8 +43,6 @@ class DesktopComponent extends React.Component {
     activeMenuItem: 'open'
   }
 
-
-
   handleMenuItemClick = (e, { name }) => {
     this.setState({ activeMenuItem: name })
   }
@@ -87,10 +85,38 @@ class DesktopComponent extends React.Component {
 
             <Grid.Row>
               <Menu className='four item pointing top attached menu'>
-                <Menu.Item active={activeMenuItem === 'open'} name='open' className='link' onClick={this.handleMenuItemClick}>Open</Menu.Item>
-                <Menu.Item active={activeMenuItem === 'join'} name='join' className='link' onClick={this.handleMenuItemClick}>Join Channels</Menu.Item>
-                <Menu.Item active={activeMenuItem === 'challenge'} name='challenge' className='link' onClick={this.handleMenuItemClick}>Challenge Period</Menu.Item>
-                <Menu.Item active={activeMenuItem === 'closed'} name='closed' className='link' onClick={this.handleMenuItemClick}>Closed</Menu.Item>
+                <Menu.Item
+                  active={activeMenuItem === 'open'}
+                  name='open'
+                  className='link'
+                  onClick={this.handleMenuItemClick}
+                >
+                  Open
+                </Menu.Item>
+                <Menu.Item
+                  active={activeMenuItem === 'join'}
+                  name='join'
+                  className='link'
+                  onClick={this.handleMenuItemClick}
+                >
+                  Join Channels
+                </Menu.Item>
+                <Menu.Item
+                  active={activeMenuItem === 'challenge'}
+                  name='challenge'
+                  className='link'
+                  onClick={this.handleMenuItemClick}
+                >
+                  Challenge Period
+                </Menu.Item>
+                <Menu.Item
+                  active={activeMenuItem === 'closed'}
+                  name='closed'
+                  className='link'
+                  onClick={this.handleMenuItemClick}
+                >
+                  Closed
+                </Menu.Item>
               </Menu>
 
               <Segment attached='bottom'>
@@ -101,7 +127,7 @@ class DesktopComponent extends React.Component {
                   type={activeMenuItem}
                 />
               </Segment>
-              
+
             </Grid.Row>
 
           </Grid>
