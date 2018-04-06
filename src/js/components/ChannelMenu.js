@@ -63,15 +63,15 @@ class ChannelMenu extends Component {
                 className='link'
                 onClick={this.handleMenuItemClick}
               >
-                Open
+                Pending
               </Menu.Item>
               <Menu.Item
-                active={activeMenuItem === 'join'}
-                name='join'
+                active={activeMenuItem === 'joined'}
+                name='joined'
                 className='link'
                 onClick={this.handleMenuItemClick}
               >
-                Join Channels
+                Active
               </Menu.Item>
               <Menu.Item
                 active={activeMenuItem === 'challenge'}

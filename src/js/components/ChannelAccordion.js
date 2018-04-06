@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Header, Grid, Accordion } from 'semantic-ui-react'
+import { Container, Header, Grid, Accordion, Message } from 'semantic-ui-react'
 
 import TransactionModal from './TransactionModal'
 import ChallengeButton from './ChallengeButton'
@@ -17,33 +17,9 @@ class ChannelAccordion extends Component {
   getChannelsToDisplay = channelType => {
     const { myChannels } = this.props
     let channelsToDisplay = []
-    switch (channelType) {
-      case 'open':
-        for (let i = 0; i < myChannels.length; i++) {
-          const isJoin =
-            myChannels[i].depositA === '0' || myChannels[i].depositB === '0'
-          if (myChannels[i].status === 'open' && isJoin === false) {
-            channelsToDisplay.push(myChannels[i])
-          }
-        }
-        break
-      case 'join':
-        for (let i = 0; i < myChannels.length; i++) {
-          const isJoin =
-            myChannels[i].depositA === '0' || myChannels[i].depositB === '0'
-          if (myChannels[i].status === 'open' && isJoin === true) {
-            channelsToDisplay.push(myChannels[i])
-          }
-        }
-        break
-      default:
-        for (let i = 0; i < myChannels.length; i++) {
-          if (myChannels[i].status === channelType) {
-            channelsToDisplay.push(myChannels[i])
-          }
-        }
-        break
-    }
+    channelsToDisplay = myChannels.filter(channel => {
+      return channel.status === channelType
+    })
     this.setState({ channelsToDisplay })
   }
 
@@ -147,21 +123,40 @@ class ChannelAccordion extends Component {
 
   channelDetailsPanel (channel) {
     const { ethcalate, channelType } = this.props
-    const { id } = channel
+    const { id, status, agentB } = channel
+
+    const iNeedToJoin =
+      channel.status === 'open' && agentB === ethcalate.web3.eth.accounts[0]
 
     return (
       <Container>
         <Grid>
           <Grid.Row centered columns='equal'>
-            {channelType === 'open'
+            {channelType === 'open' && iNeedToJoin
+              ? <Grid.Column textAlign='center'>
+                <JoinChannelModal channel={channel} ethcalate={ethcalate} />
+              </Grid.Column>
+              : <div />}
+
+            {channelType === 'open' && !iNeedToJoin
+              ? <Grid.Column textAlign='center'>
+                <Message info>
+                  <Message.Header>
+                      Waiting for Counterparty to join channel...
+                    </Message.Header>
+                </Message>
+              </Grid.Column>
+              : <div />}
+
+            {channelType === 'joined'
               ? <Grid.Column textAlign='center'>
                 <UpdateStateModal channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {channelType === 'join'
+            {channelType === 'joined'
               ? <Grid.Column textAlign='center'>
-                <JoinChannelModal channel={channel} ethcalate={ethcalate} />
+                <CloseChannelButton channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
@@ -171,13 +166,7 @@ class ChannelAccordion extends Component {
               </Grid.Column>
               : <div />}
 
-            {channelType === 'open'
-              ? <Grid.Column textAlign='center'>
-                <CloseChannelButton channel={channel} ethcalate={ethcalate} />
-              </Grid.Column>
-              : <div />}
-
-            {channelType === 'closed'
+            {channelType === 'challenge'
               ? <Grid.Column textAlign='center'>
                 <WithdrawFundsButton
                   channel={channel}
@@ -189,11 +178,13 @@ class ChannelAccordion extends Component {
           </Grid.Row>
         </Grid>
 
-        <Grid centered>
-          <Grid.Row>
-            <TransactionModal ethcalate={ethcalate} channelId={id} />
-          </Grid.Row>
-        </Grid>
+        {channelType !== 'open'
+          ? <Grid centered>
+            <Grid.Row>
+              <TransactionModal ethcalate={ethcalate} channelId={id} />
+            </Grid.Row>
+          </Grid>
+          : <div />}
       </Container>
     )
   }
