@@ -24,6 +24,7 @@ contract ChannelManager {
 
     enum ChannelStatus {
         Open,
+        Joined,
         Challenge,
         Closed
     }
@@ -49,6 +50,7 @@ contract ChannelManager {
         require(to != address(0)); // need counterparty address
         require(to != msg.sender); // cant create with yourself
         require(activeIds[msg.sender][to] == bytes32(0)); // if channel is already open dont create
+        require(activeIds[to][msg.sender] == bytes32(0)); // dont allow to open both ways
 
         bytes32 id = keccak256(msg.sender, to, now);
         Channel memory channel;
@@ -68,12 +70,12 @@ contract ChannelManager {
     function joinChannel(bytes32 id) payable public {
         Channel storage channel = channels[id];
 
-        require(msg.sender == channel.agentB && channel.status == ChannelStatus.Open);
-        require(msg.value != 0);
-        require(channel.depositB == 0); // no re-up in this version
+        require(msg.sender == channel.agentB);
+        require(channel.status == ChannelStatus.Open);
 
         channel.depositB = msg.value;
 
+        channel.status = ChannelStatus.Joined;
         ChannelJoin(id, channel.agentA, channel.agentB, channel.depositA, channel.depositB);
     }
 
@@ -91,10 +93,10 @@ contract ChannelManager {
         view
         returns (bool)
     {
-        // h = keccack(channelId, nonce, balanceA, balanceB)
         Channel memory channel = channels[channelId];
-        require(balanceA + balanceB == channel.depositA + channel.depositB);
-        require(channel.status == ChannelStatus.Open || channel.status == ChannelStatus.Challenge);
+
+        require(balanceA + balanceB == channel.depositA + channel.depositB); // balances must add up to deposit
+        require(channel.status == ChannelStatus.Joined || channel.status == ChannelStatus.Challenge); // channel must be joined
 
         // require state info to be signed by both participants
         bytes32 fingerprint = keccak256(channelId, nonce, balanceA, balanceB);
