@@ -270,7 +270,7 @@ module.exports = class Ethcalate {
     }
 
     const response = await axios.get(
-      `${this.apiUrl}/channel/unjoined?address=${this.web3.eth.accounts[0]}`
+      `${this.apiUrl}/channel?b=${this.web3.eth.accounts[0]}&status=open`
     )
     if (response.data) {
       return response.data.channels.map(channel => {

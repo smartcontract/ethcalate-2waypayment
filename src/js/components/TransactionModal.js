@@ -43,7 +43,7 @@ class TransactionModal extends Component {
         onOpen={() => this.fetchTransactions(channelId)}
       >
         <Modal.Header>Transactions</Modal.Header>
-        <Modal.Content>
+        <Modal.Content scrolling>
           <Table className='ui cell striped table'>
             <thead>
               <tr>
