@@ -26,7 +26,9 @@ class UserSettingsModal extends Component {
     const { ethcalate } = this.props
     if (ethcalate) {
       try {
-        await ethcalate.updateName(name)
+        if (name) {
+          await ethcalate.updateName(name)
+        }
         if (phoneNumber) {
           await ethcalate.updatePhone(phoneNumber)
         }
@@ -74,7 +76,7 @@ class UserSettingsModal extends Component {
             Settings
           </Button>
         }
-        style={{ position: 'absolute', top: '90%', right: '20%' }}
+        style={{ position: 'absolute', top: '50%', left: '25%' }}
       >
         <Modal.Header>Settings</Modal.Header>
         <Modal.Content>

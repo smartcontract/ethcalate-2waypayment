@@ -74,7 +74,7 @@ class NewChannelModal extends Component {
         open={this.state.modalOpen}
         onClose={this.handleClose}
         trigger={<Button onClick={this.handleOpen}>Open a New Channel</Button>}
-        style={{ position: 'absolute', top: '50%', left: '20%' }}
+        style={{ position: 'absolute', top: '50%', left: '25%' }}
       >
         <Modal.Header>Enter Channel Information</Modal.Header>
         <Modal.Content>
