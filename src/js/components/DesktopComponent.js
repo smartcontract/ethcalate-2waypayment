@@ -22,40 +22,39 @@ const MainHeading = () => (
 
 const ChannelHeading = () => (
   <Container>
-      <Header
+    <Header
       as='h3'
       textAlign='center'
       content='Your Channels'
       style={{
-          fontSize: '1.5em',
-          fontWeight: 'normal',
-          marginBottom: '1em',
-          marginTop: '2em'
+        fontSize: '1.5em',
+        fontWeight: 'normal',
+        marginBottom: '1em',
+        marginTop: '2em'
       }}
-      />
+    />
   </Container>
 )
 
-
 class DesktopComponent extends React.Component {
-
   state = {
     hasChannels: null
   }
 
   componentWillMount = () => {
     const { ethcalate, myChannels } = this.props
-    const fetching = (!ethcalate)
-    const hasChannels = (myChannels.length !== 0)
+    const fetching = !ethcalate
+    const hasChannels = myChannels.length !== 0
     this.setState({
-      hasChannels, fetching
+      hasChannels,
+      fetching
     })
   }
 
-  componentWillReceiveProps = (nextProps) => {
+  componentWillReceiveProps = nextProps => {
     if (nextProps && nextProps !== this.props) {
       this.setState({
-        hasChannels: (nextProps.myChannels.length !== 0)
+        hasChannels: nextProps.myChannels.length !== 0
       })
     }
   }
@@ -63,7 +62,7 @@ class DesktopComponent extends React.Component {
   render () {
     const { ethcalate, myChannels, fetching } = this.props
     const { hasChannels } = this.state
-    
+
     console.log('DesktopComponent:fetching', fetching)
     console.log('DesktopComponent:hasChannels', hasChannels)
     console.log('DesktopComponent:myChannels', myChannels)
@@ -77,19 +76,19 @@ class DesktopComponent extends React.Component {
                 <UserSettingsModal ethcalate={ethcalate} />
               </Grid.Column>
             </Grid.Row>
-      
+
             <Grid.Row>
               <Grid.Column textAlign='center'>
                 <MainHeading />
               </Grid.Column>
             </Grid.Row>
-      
+
             <Grid.Row columns='equal' verticalAlign='middle'>
               <Grid.Column textAlign='center'>
                 <NewChannelModal ethcalate={ethcalate} />
               </Grid.Column>
             </Grid.Row>
-      
+
           </Grid>
 
           <ChannelHeading />

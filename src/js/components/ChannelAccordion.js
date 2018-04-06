@@ -14,13 +14,14 @@ class ChannelAccordion extends Component {
     channelsToDisplay: []
   }
 
-  getChannelsToDisplay = (channelType) => {
+  getChannelsToDisplay = channelType => {
     const { myChannels } = this.props
     let channelsToDisplay = []
     switch (channelType) {
       case 'open':
         for (let i = 0; i < myChannels.length; i++) {
-          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          const isJoin =
+            myChannels[i].depositA === '0' || myChannels[i].depositB === '0'
           if (myChannels[i].status === 'open' && isJoin === false) {
             channelsToDisplay.push(myChannels[i])
           }
@@ -28,7 +29,8 @@ class ChannelAccordion extends Component {
         break
       case 'join':
         for (let i = 0; i < myChannels.length; i++) {
-          const isJoin = (myChannels[i].depositA === '0' || myChannels[i].depositB === '0')
+          const isJoin =
+            myChannels[i].depositA === '0' || myChannels[i].depositB === '0'
           if (myChannels[i].status === 'open' && isJoin === true) {
             channelsToDisplay.push(myChannels[i])
           }
@@ -52,7 +54,7 @@ class ChannelAccordion extends Component {
     }
   }
 
-  componentWillReceiveProps = async (nextProps) => {
+  componentWillReceiveProps = async nextProps => {
     // display only the relevant types of channels in accordion
     if (!nextProps) {
       return
@@ -113,12 +115,12 @@ class ChannelAccordion extends Component {
       <Container>
         <Grid centered>
           <Grid.Row columns='equal' verticalAlign='middle'>
-            
+
             <Grid.Column>
               <Header className='h3 centered'>Counterparty</Header>
               <Header className='centered sub header'>{counterparty}</Header>
             </Grid.Column>
-            
+
             <Grid.Column>
               <Header className='h3 centered'>Balances</Header>
               <Grid.Row>
@@ -130,7 +132,7 @@ class ChannelAccordion extends Component {
                 </Header>
               </Grid.Row>
             </Grid.Column>
-            
+
             <Grid.Column>
               <Header className='h3 centered'>Status</Header>
               <Header className='centered sub header'>{status}</Header>
@@ -145,39 +147,42 @@ class ChannelAccordion extends Component {
 
   channelDetailsPanel (channel) {
     const { ethcalate, channelType } = this.props
-    const { id, agentB, balanceB } = channel
+    const { id } = channel
 
     return (
       <Container>
         <Grid>
           <Grid.Row centered columns='equal'>
-            {(channelType === 'open')
+            {channelType === 'open'
               ? <Grid.Column textAlign='center'>
                 <UpdateStateModal channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(channelType === 'join')
+            {channelType === 'join'
               ? <Grid.Column textAlign='center'>
                 <JoinChannelModal channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(channelType === 'challenge')
+            {channelType === 'challenge'
               ? <Grid.Column textAlign='center'>
                 <ChallengeButton />
               </Grid.Column>
               : <div />}
 
-            {(channelType === 'open')
+            {channelType === 'open'
               ? <Grid.Column textAlign='center'>
                 <CloseChannelButton channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
-            {(channelType === 'closed')
+            {channelType === 'closed'
               ? <Grid.Column textAlign='center'>
-                <WithdrawFundsButton channel={channel} ethcalate={ethcalate} />
+                <WithdrawFundsButton
+                  channel={channel}
+                  ethcalate={ethcalate}
+                  />
               </Grid.Column>
               : <div />}
 
@@ -212,7 +217,7 @@ class ChannelAccordion extends Component {
 
   render () {
     const { channelsToDisplay } = this.state
-    
+
     return (
       <div>
         <Container>
