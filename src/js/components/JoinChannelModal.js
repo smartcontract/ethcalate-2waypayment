@@ -7,9 +7,10 @@ class JoinChannelModal extends Component {
   }
 
   handleSubmit = async () => {
-    const { ethcalate, channelId } = this.props
+    const { ethcalate, channel } = this.props
     const { deposit } = this.state
     const depositInWei = ethcalate.web3.toWei(deposit)
+    const channelId = channel.id
     try {
       await ethcalate.joinChannel({ channelId, depositInWei })
     } catch (e) {

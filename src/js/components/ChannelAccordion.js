@@ -153,13 +153,13 @@ class ChannelAccordion extends Component {
           <Grid.Row centered columns='equal'>
             {(channelType === 'open')
               ? <Grid.Column textAlign='center'>
-                <UpdateStateModal channelId={id} ethcalate={ethcalate} />
+                <UpdateStateModal channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
             {(channelType === 'join')
               ? <Grid.Column textAlign='center'>
-                <JoinChannelModal channelId={id} ethcalate={ethcalate} />
+                <JoinChannelModal channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
@@ -171,13 +171,13 @@ class ChannelAccordion extends Component {
 
             {(channelType === 'open')
               ? <Grid.Column textAlign='center'>
-                <CloseChannelButton channelId={id} ethcalate={ethcalate} />
+                <CloseChannelButton channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
             {(channelType === 'closed')
               ? <Grid.Column textAlign='center'>
-                <WithdrawFundsButton channelId={id} ethcalate={ethcalate} />
+                <WithdrawFundsButton channel={channel} ethcalate={ethcalate} />
               </Grid.Column>
               : <div />}
 
